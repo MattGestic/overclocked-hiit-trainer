@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;900&display=swap');
+@import "@overclocked/shared-ui/theme/tokens.css";
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--color-bg-app);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100svh;
+}
