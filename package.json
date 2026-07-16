@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@overclocked/shared-ui": "file:../overclocked-shared-ui",
+    "@supabase/supabase-js": "^2.110.7",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },
