@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ThemeProvider } from '@overclocked/shared-ui'
+import { ThemeProvider } from './shared-ui'
 import App from './App'
 import './index.css'
 

@@ -1,4 +1,4 @@
-import { useTheme } from '@overclocked/shared-ui'
+import { useTheme } from './shared-ui'
 
 export default function App() {
   const { dark, toggleTheme } = useTheme()
