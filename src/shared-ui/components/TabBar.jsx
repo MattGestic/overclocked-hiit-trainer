@@ -3,7 +3,7 @@ export default function TabBar({ tabs, active, onNavigate, activeColor = 'var(--
     <div className="fixed bottom-0 left-0 right-0 flex justify-center" style={{ background: 'var(--color-bg-app)', zIndex: 40 }}>
       <div
         className="flex w-full"
-        style={{ maxWidth: 'var(--shell-max-w-mobile)', borderTop: '1px solid var(--color-border-subtle)' }}
+        style={{ maxWidth: 'var(--shell-max-mobile)', borderTop: '1px solid var(--color-border-subtle)' }}
       >
         {tabs.map(tab => {
           const isActive = active === tab.id

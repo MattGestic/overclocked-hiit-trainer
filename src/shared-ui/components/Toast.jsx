@@ -23,8 +23,8 @@ export function ToastProvider({ children }) {
               fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, letterSpacing: '0.04em',
               pointerEvents: 'auto', animation: 'toast-in 0.3s ease',
               ...(t.type === 'error'
-                ? { background: 'var(--color-status-error-bg)', border: '1px solid var(--color-status-error-border)', color: 'var(--color-status-error-text)' }
-                : { background: 'var(--color-status-success-bg)', border: '1px solid var(--color-status-success-border)', color: 'var(--color-status-success-text)' }),
+                ? { background: 'var(--color-error-bg)', border: '1px solid var(--color-error-border)', color: 'var(--color-error-text)' }
+                : { background: 'var(--color-success-bg)', border: '1px solid var(--color-success-border)', color: 'var(--color-success-text)' }),
             }}
           >
             {t.message}
