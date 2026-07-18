@@ -1,5 +1,25 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { timerReducer } from './useTimerEngine'
+
+// timerReducer itself has zero audio dependency, but useTimerEngine.js
+// imports audioEngine.js at module scope, and audioEngine.js fetches every
+// cue asset eagerly at import time (a real, deliberate perf choice for a
+// browser — assets start downloading before Start is even pressed). Node's
+// fetch can't resolve Vite-processed asset URLs outside a real browser, so
+// mock the module here rather than let those requests fail as unhandled
+// rejections on every test run.
+vi.mock('../lib/audioEngine', () => ({
+  bootAudioContext: vi.fn(() => Promise.resolve()),
+  resumeAudioContext: vi.fn(),
+  setVolume: vi.fn(),
+  getVolume: vi.fn(() => 80),
+  playIntroChime: vi.fn(),
+  playCountdownTick: vi.fn(),
+  playStartActivity: vi.fn(),
+  playEndActivity: vi.fn(),
+  playEndBlock: vi.fn(),
+  playEndProgramme: vi.fn(),
+}))
 
 // Block 0: repeat 2, activities [A, B] — exercises the normal endActivity
 // path (A, round 0) and the endBlock path (B, round 1, last of block 0).

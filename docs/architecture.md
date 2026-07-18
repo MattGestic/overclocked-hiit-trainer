@@ -74,28 +74,48 @@ was, in fact, wrong on the first pass — caught by the tests):
 is reused by `TimerRun`'s "next up" preview, rather than re-deriving that
 logic a second time.
 
-## Audio engine — placeholder by design
+## Audio engine
 
-`src/lib/audioEngine.js` currently just logs a warning per cue. It exports
-a locked function contract (`bootAudioContext`, `resumeAudioContext`,
-`setVolume`/`getVolume`, `playIntroChime`/`playCountdownTick`/
-`playStartActivity`/`playEndActivity`/`playEndBlock`/`playEndProgramme`)
-that every caller in the app is already written against. The real
-synthesis/decoded-MP3 implementation drops in by replacing this file's
-internals only — no other file needs to change.
+`src/lib/audioEngine.js` is a delivered module (built separately against a
+locked function contract, then dropped in — see the file's own header
+comment), backed by real audio files in `src/lib/audio/`. It fetches every
+asset eagerly at module load (a deliberate perf choice: downloads start
+before the user ever presses Start) and decodes them inside
+`bootAudioContext()`, which is `async` — `useTimerEngine.js`'s `start()`
+**must** `await` it before dispatching `START`, since scheduling a cue
+before every asset has decoded throws. Get this ordering wrong and the
+first Start press after a cold load silently fails.
 
-Final cue mapping (reconciled from the build spec):
+**The actual sound palette changed significantly from earlier planning.**
+The originally-discussed bell/gong/whistle/ship-bell design (and the
+synthesized-whistle plan) was superseded during hands-on iteration on a
+separate platform — the gong and ship-bell files aren't part of the
+delivered package at all, replaced by a more energetic voice/hype palette:
 
-| Transition | Cue |
+| Cue (function called) | Sound |
 |---|---|
-| Start pressed → intro begins | Bell (single strike) |
-| Last 3s of intro | Servant-bell, 1/sec ×3 |
-| Intro ends → first activity starts | Whistle (synthesized — no source file) |
-| Active phase ends → recover starts | Ship-bell-two-chimes |
-| Last 3s of recover | Servant-bell, 1/sec ×3 |
-| Recover ends → next activity starts | Whistle |
-| End of a block | Gong |
-| End of programme | Gong (same sound) |
+| `playIntroChime` — start pressed, intro begins | Opening bell |
+| `playCountdownTick` — last 3s of intro/recover, ×3 | Servant-bell |
+| `playStartActivity` — every activity starts | "Gooo" |
+| `playEndActivity` — active phase ends, recover starts | Female voice, "3, 2, 1" |
+| `playEndBlock` — end of a block | "Yay" |
+| `playEndProgramme` — end of the programme | "Well done" (capped/faded at 22s) + "You go girl" (queued) |
+
+Only these six functions are wired into `useTimerEngine.js` today — the
+same six from the original locked contract, matching what's actually
+called via `CUE_FN` in that file. The module also exports a considerably
+richer API that isn't used yet: `playStartBlock`/`playStartRest`/
+`playEndRest` (distinct cues for block-start vs. activity-start, and
+rest-start vs. rest-end — concepts the phase engine doesn't currently
+model separately), `playTimerEvent`/`scheduleCueSequence` (schedule a
+whole run's cues against one AudioContext timestamp up front, with
+automatic capping so cues can't overlap into the next one), and
+`pauseTimerAudio`/`resumeTimerAudio`/`terminateTimerAudio` (suspend/resume
+the AudioContext clock itself, freezing an in-flight cue's exact playback
+position — more precise than this app's current pause, which just stops
+the tick interval). Using any of that means giving `timerReducer` new
+phase-transition concepts it doesn't have yet, not just an audioEngine
+change — left available rather than stripped out, but not a v1 requirement.
 
 ## Data model
 

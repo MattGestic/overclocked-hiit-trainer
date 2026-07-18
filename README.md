@@ -54,11 +54,12 @@ Run [`supabase/schema.sql`](supabase/schema.sql) once in your project's SQL Edit
 
 ## Known limitations (tracked, not accidental)
 
-- **Audio cues are a placeholder.** `src/lib/audioEngine.js` currently logs a
-  console warning instead of playing sound — the real synthesis/decoded-MP3
-  implementation is being built separately against a locked function
-  contract (see the module's own header comment) and will drop in without
-  touching any caller.
+- **Audio cues are unverified by ear.** `src/lib/audioEngine.js` is wired
+  to real decoded MP3/WAV cues and confirmed working end-to-end (all assets
+  fetch/decode successfully, phase transitions fire the right function calls)
+  — but nothing in this build environment can actually play sound, so
+  whether the cues sound right, duck Spotify correctly, and land on the
+  right beat is still an on-device check away. See `docs/test-plan.md`.
 - **Delete-and-reinsert saves.** `programmesApi.js`'s `saveProgramme` isn't
   wrapped in a transaction — see `docs/architecture.md` for the tradeoff and
   the fast-follow (a Postgres RPC).

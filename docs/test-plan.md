@@ -48,9 +48,11 @@ behaviour have no automated equivalent:
 - [ ] Stop mid-run releases the wake lock and stops the silent audio loop
       (check via `chrome://media-internals` or confirm no persistent media
       notification after stop)
-- [ ] Since the audio cues are new synthesized/decoded tones, not a
-      restoration of a lost original — judge whether the full sequence
-      sounds acceptable once the real `audioEngine.js` lands
+- [ ] Judge the actual cue sequence by ear — the sound palette (opening
+      bell, "Gooo", "3, 2, 1", "Yay", "Well done" + "You go girl") is a
+      newer, more energetic design than what was originally planned (see
+      `docs/architecture.md`); confirm it lands right in practice, not just
+      that the right file plays at the right transition
 
 ## Known-bug regressions (do not reintroduce)
 

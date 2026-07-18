@@ -173,10 +173,14 @@ export function useTimerEngine(programme) {
     else resume()
   }, [pause, resume])
 
-  const start = useCallback(() => {
-    audioEngine.bootAudioContext()
-    audioReliability.start(programme.name, togglePause)
+  const start = useCallback(async () => {
+    // Acquire the wake lock synchronously within the gesture; audio
+    // decoding (bootAudioContext) can take a moment on a large asset set,
+    // and cues mustn't fire before it resolves — the engine throws if a
+    // cue is scheduled before every asset has decoded.
     wakeLock.acquire()
+    await audioEngine.bootAudioContext()
+    audioReliability.start(programme.name, togglePause)
     dispatch({ type: 'START', programme })
   }, [programme, audioReliability, wakeLock, togglePause])
 
