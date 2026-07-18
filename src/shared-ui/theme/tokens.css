@@ -118,9 +118,15 @@
   --color-challenge-solo:  #2563eb;
   --color-challenge-group: #7c3aed;
 
-  /* Timer phases — shared between HIIT app and any countdown UIs */
+  /* Timer phases — shared between HIIT app and any countdown UIs.
+     Usage: `work`/`rest`/`intro`/`complete` are the phase badge + progress-
+     ring color for ACTIVE/RECOVER/INTRO/DONE; the same token doubles as the
+     full-screen background for a "fully saturated" phase treatment (e.g.
+     RECOVER flooding the screen with --color-timer-rest). `warning` is the
+     shared countdown-tick accent, not a phase of its own. */
   --color-timer-work:     #84cc16;
   --color-timer-rest:     #38bdf8;
+  --color-timer-intro:    #6366f1;
   --color-timer-warning:  #f97316;
   --color-timer-complete: #22c55e;
 
@@ -452,6 +458,7 @@
 
   --color-timer-work:     #a3e635;
   --color-timer-rest:     #38bdf8;
+  --color-timer-intro:    #818cf8;
   --color-timer-warning:  #fb923c;
   --color-timer-complete: #4ade80;
 
