@@ -1,62 +1,50 @@
 # Deployment
 
-## Open question: two deploy targets exist — pick one
+## Deploy target: Vercel
 
-During this build, PR activity revealed a **Vercel project (`overclocked-hitt-fit`)
-is already connected to this repo and auto-deploying** a preview URL on
-every push (visible as `vercel[bot]` comments on PRs #3/#4). This wasn't
-something set up as part of this build — it already existed. Separately,
-`.github/workflows/deploy.yml` (inherited from the `user-testing` branch,
-reworked here) deploys to GitHub Pages.
+This repo deploys via a **Vercel project already connected to it**, auto-
+deploying on every push to `main` (and preview URLs per-PR, visible as
+`vercel[bot]` comments). The custom domain is `overclockedhittfit.life`.
 
-**Both can't be the real answer** — pick one before going live, or the
-`www.overclockedhittfit.fit` domain will only ever point at one of them
-regardless of which pipeline "succeeds":
+A GitHub Pages workflow (`deploy.yml`) and `public/CNAME` existed earlier in
+this build as a second candidate deploy path, targeting a different domain
+(`www.overclockedhittfit.fit`). That path has been removed — Vercel is the
+decided answer, and running two deploy pipelines against different domains
+only invited confusion. Nothing in this repo drives the Vercel deploy;
+config lives entirely in the Vercel dashboard.
 
-- **Vercel** — zero-config, already working, gets preview URLs per-PR for
-  free. Custom domain + env vars are configured in the Vercel dashboard,
-  not in this repo — nothing here to change if this is the answer.
-- **GitHub Pages** — `deploy.yml`, now targets `main` (was `user-testing`),
-  builds with the current env var names, no longer forces the
-  `/overclocked-hiit-trainer/` subpath (a custom domain serves from root).
-  `public/CNAME` is in place so the custom domain survives redeploys.
+## Remaining manual steps
 
-If Vercel is the answer, `deploy.yml` and `public/CNAME` can be deleted.
-If GitHub Pages is the answer, the Vercel project's auto-deploy should
-probably be disconnected to avoid two builds racing to serve the same
-domain from different states.
+1. **Environment variables** — in the Vercel dashboard (Project → Settings →
+   Environment Variables), set for the Production environment:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`
 
-## GitHub Pages path — remaining manual steps
+   pointed at Supabase project `xilnfrswpirjhzitxahh`. Without these, the
+   app renders "Supabase is not configured" instead of the Login screen —
+   `src/lib/supabaseClient.js` deliberately returns `null` rather than
+   throwing when either var is missing, and `App.jsx` shows that message
+   for exactly that case. After setting them, trigger a redeploy (env var
+   changes don't apply to already-built deployments — push a commit or use
+   the dashboard's "Redeploy" action).
+2. **Custom domain** — confirm `overclockedhittfit.life` is attached under
+   the Vercel project's Domains settings (it already resolves there, so
+   this is likely already done — just double-check the target isn't
+   pointed at a stale deployment).
 
-1. **Rename the GitHub Actions secrets** (Settings → Secrets and variables
-   → Actions) from `USER_TESTING_SUPABASE_URL` / `USER_TESTING_SUPABASE_ANON_KEY`
-   to `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY`, pointed at project
-   `xilnfrswpirjhzitxahh`.
-2. **DNS**: add a `CNAME` record at your domain registrar for
-   `www.overclockedhittfit.fit` → `mattgestic.github.io`. This is outside
-   the repo and can't be scripted here.
-3. Enable GitHub Pages (Settings → Pages) with source "GitHub Actions" if
-   not already set.
+## Supabase Auth redirect config
 
-## Vercel path — remaining manual steps
+Once the domain is live and returning the Login screen, in the Supabase
+dashboard (Authentication → URL Configuration) for project
+`xilnfrswpirjhzitxahh`:
 
-1. Confirm/set the project's environment variables in the Vercel dashboard:
-   `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, pointed at project
-   `xilnfrswpirjhzitxahh`.
-2. Add the custom domain in the Vercel dashboard's Domains settings.
-
-## Either path — Supabase Auth redirect config
-
-Once whichever domain is live, in the Supabase dashboard
-(Authentication → URL Configuration) for project `xilnfrswpirjhzitxahh`:
-
-- **Site URL**: `https://www.overclockedhittfit.fit`
+- **Site URL**: `https://overclockedhittfit.life`
 - **Redirect URLs**: add the same, and keep `http://localhost:5173` for
   local dev.
 
 This is a dashboard-only step — not something a workflow file can do.
 
-## Before merging the feature branch into `main`
+## Before merging further feature branches into `main`
 
 Run the full on-device acceptance checklist in
 [`docs/test-plan.md`](test-plan.md) on a real Android phone with Spotify
