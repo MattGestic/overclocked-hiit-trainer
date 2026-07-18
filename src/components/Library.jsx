@@ -18,7 +18,7 @@ function fetchLibraryData() {
     .then(([list, counts]) => ({ list, counts }))
 }
 
-export default function Library({ onNew, onEdit, onRun }) {
+export default function Library({ onNew, onEdit, onRun, onSettings }) {
   const [programmes, setProgrammes] = useState(null) // null = loading
   const [error, setError] = useState(null)
   const [dailyReps, setDailyReps] = useState({})
@@ -61,6 +61,16 @@ export default function Library({ onNew, onEdit, onRun }) {
         }}>
           OVER&bull;CLOCK
         </h1>
+        <button
+          onClick={onSettings}
+          aria-label="Settings"
+          style={{
+            width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-action-secondary)',
+            color: 'var(--color-action-secondary-text)', border: 'none', cursor: 'pointer', fontSize: 16,
+          }}
+        >
+          &#9881;
+        </button>
       </header>
 
       <DayDots

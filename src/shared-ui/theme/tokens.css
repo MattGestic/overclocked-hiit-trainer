@@ -346,6 +346,28 @@
 
 
 /* ==========================================================================
+   DENSITY — orthogonal to theme, applied via [data-density] on <html>.
+   Comfortable (the default) uses the base --space-* scale defined above;
+   compact scales it down ~25% for users who want more on screen at once.
+   ========================================================================== */
+
+[data-density="compact"] {
+  --space-1:  0.2rem;
+  --space-2:  0.4rem;
+  --space-3:  0.5rem;
+  --space-4:  0.75rem;
+  --space-5:  0.9rem;
+  --space-6:  1.1rem;
+  --space-8:  1.5rem;
+  --space-10: 1.9rem;
+  --space-12: 2.25rem;
+  --space-16: 3rem;
+  --space-20: 3.75rem;
+  --space-24: 4.5rem;
+}
+
+
+/* ==========================================================================
    DARK THEME
    Used by default in REP•STACK and OVERCLOCK apps
    ========================================================================== */

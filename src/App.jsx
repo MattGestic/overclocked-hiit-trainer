@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
-import { useTheme } from './shared-ui'
 import { supabase } from './lib/supabaseClient'
 import Login from './components/Login'
 import Library from './components/Library'
 import ProgrammeEditor from './components/ProgrammeEditor'
 import ActiveWorkout from './components/ActiveWorkout'
+import Settings from './components/Settings'
 
 export default function App() {
-  const { dark, toggleTheme } = useTheme()
   const [session, setSession] = useState(undefined) // undefined = still checking
   const [view, setView] = useState({ screen: 'library' })
 
@@ -39,48 +38,40 @@ export default function App() {
     return <Login />
   }
 
-  return (
-    <>
-      {view.screen !== 'workout' && (
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8, maxWidth: 'var(--shell-max-mobile)',
-          height: 'var(--header-h)', boxSizing: 'border-box', margin: '0 auto', padding: '0 var(--shell-px-mobile)',
-        }}>
-          <button onClick={toggleTheme} style={topBarBtn}>{dark ? 'LIGHT' : 'DARK'}</button>
-          <button onClick={() => supabase.auth.signOut()} style={topBarBtn}>SIGN OUT</button>
-        </div>
-      )}
+  if (view.screen === 'library') {
+    return (
+      <Library
+        onNew={() => setView({ screen: 'editor', programmeId: null })}
+        onEdit={(id) => setView({ screen: 'editor', programmeId: id })}
+        onRun={(id) => setView({ screen: 'workout', programmeId: id })}
+        onSettings={() => setView({ screen: 'settings' })}
+      />
+    )
+  }
 
-      {view.screen === 'library' && (
-        <Library
-          onNew={() => setView({ screen: 'editor', programmeId: null })}
-          onEdit={(id) => setView({ screen: 'editor', programmeId: id })}
-          onRun={(id) => setView({ screen: 'workout', programmeId: id })}
-        />
-      )}
+  if (view.screen === 'editor') {
+    return (
+      <ProgrammeEditor
+        programmeId={view.programmeId}
+        onSaved={() => setView({ screen: 'library' })}
+        onCancel={() => setView({ screen: 'library' })}
+      />
+    )
+  }
 
-      {view.screen === 'editor' && (
-        <ProgrammeEditor
-          programmeId={view.programmeId}
-          onSaved={() => setView({ screen: 'library' })}
-          onCancel={() => setView({ screen: 'library' })}
-        />
-      )}
+  if (view.screen === 'workout') {
+    return (
+      <ActiveWorkout
+        programmeId={view.programmeId}
+        onBack={() => setView({ screen: 'library' })}
+        onEdit={(id) => setView({ screen: 'editor', programmeId: id })}
+      />
+    )
+  }
 
-      {view.screen === 'workout' && (
-        <ActiveWorkout
-          programmeId={view.programmeId}
-          onBack={() => setView({ screen: 'library' })}
-          onEdit={(id) => setView({ screen: 'editor', programmeId: id })}
-        />
-      )}
-    </>
-  )
-}
+  if (view.screen === 'settings') {
+    return <Settings session={session} onBack={() => setView({ screen: 'library' })} />
+  }
 
-const topBarBtn = {
-  fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10,
-  letterSpacing: '0.1em', padding: '8px 14px', borderRadius: 10,
-  background: 'var(--color-action-secondary)', color: 'var(--color-action-secondary-text)',
-  border: 'none', cursor: 'pointer',
+  return null
 }
