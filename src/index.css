@@ -12,5 +12,8 @@ body {
 }
 
 #root {
-  min-height: 100svh;
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }

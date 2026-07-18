@@ -14,7 +14,7 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={show}>
       {children}
-      <div style={{ position: 'fixed', top: 56, left: 0, right: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, pointerEvents: 'none' }}>
+      <div style={{ position: 'fixed', top: 'var(--header-h)', left: 0, right: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, pointerEvents: 'none' }}>
         {toasts.map(t => (
           <div
             key={t.id}
