@@ -2,43 +2,63 @@
 -- Run this whole file in the Supabase SQL Editor for project xilnfrswpirjhzitxahh.
 -- Safe to re-run: every statement is idempotent (CREATE ... IF NOT EXISTS /
 -- CREATE OR REPLACE / DROP ... IF EXISTS before CREATE TRIGGER).
+--
+-- IMPORTANT: `CREATE TABLE IF NOT EXISTS` only creates a table that's
+-- entirely missing — it does NOT add new columns to a table that already
+-- exists from an earlier, narrower version of this file (this bit a real
+-- run: `programmes` was created before `type` was added here, and re-running
+-- the file silently left the column missing). Every column below also has
+-- a matching `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`, so re-running this
+-- file heals column drift too, not just missing tables.
 
 -- ── programmes ──────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS programmes (
   id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id        UUID NOT NULL REFERENCES auth.users ON DELETE CASCADE,
-  name           TEXT NOT NULL DEFAULT 'New Programme',
-  type           TEXT NOT NULL DEFAULT 'HIIT'
-                   CHECK (type IN ('HIIT', 'TABATA', 'CIRCUIT', 'AMRAP', 'EMOM')),
-  intro_enabled  BOOLEAN NOT NULL DEFAULT true,
-  intro_seconds  INT NOT NULL DEFAULT 10 CHECK (intro_seconds BETWEEN 5 AND 60),
-  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+  user_id        UUID NOT NULL REFERENCES auth.users ON DELETE CASCADE
 );
+
+ALTER TABLE programmes ADD COLUMN IF NOT EXISTS name TEXT NOT NULL DEFAULT 'New Programme';
+ALTER TABLE programmes ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT 'HIIT'
+  CHECK (type IN ('HIIT', 'TABATA', 'CIRCUIT', 'AMRAP', 'EMOM'));
+ALTER TABLE programmes ADD COLUMN IF NOT EXISTS intro_enabled BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE programmes ADD COLUMN IF NOT EXISTS intro_seconds INT NOT NULL DEFAULT 10
+  CHECK (intro_seconds BETWEEN 5 AND 60);
+ALTER TABLE programmes ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now();
+ALTER TABLE programmes ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();
 
 -- ── blocks ──────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS blocks (
-  id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  programme_id     UUID NOT NULL REFERENCES programmes(id) ON DELETE CASCADE,
-  position         INT NOT NULL DEFAULT 1,
-  name             TEXT,                          -- optional label, e.g. "A — Legs and Core"
-  repeat_count     INT NOT NULL DEFAULT 3 CHECK (repeat_count >= 1),
-  active_seconds   INT NOT NULL DEFAULT 45 CHECK (active_seconds > 0),
-  recover_seconds  INT NOT NULL DEFAULT 30 CHECK (recover_seconds >= 0),
-  UNIQUE (programme_id, position)
+  id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  programme_id   UUID NOT NULL REFERENCES programmes(id) ON DELETE CASCADE
 );
+
+ALTER TABLE blocks ADD COLUMN IF NOT EXISTS position INT NOT NULL DEFAULT 1;
+ALTER TABLE blocks ADD COLUMN IF NOT EXISTS name TEXT; -- optional label, e.g. "A — Legs and Core"
+ALTER TABLE blocks ADD COLUMN IF NOT EXISTS repeat_count INT NOT NULL DEFAULT 3 CHECK (repeat_count >= 1);
+ALTER TABLE blocks ADD COLUMN IF NOT EXISTS active_seconds INT NOT NULL DEFAULT 45 CHECK (active_seconds > 0);
+ALTER TABLE blocks ADD COLUMN IF NOT EXISTS recover_seconds INT NOT NULL DEFAULT 30 CHECK (recover_seconds >= 0);
+
+DO $$ BEGIN
+  ALTER TABLE blocks ADD CONSTRAINT blocks_programme_id_position_key UNIQUE (programme_id, position);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ── activities ──────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS activities (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  block_id    UUID NOT NULL REFERENCES blocks(id) ON DELETE CASCADE,
-  position    INT NOT NULL DEFAULT 1,
-  name        TEXT NOT NULL DEFAULT 'Exercise',
-  reps        TEXT,                                -- free text: "20", "45s", "10 ea/side"
-  weight      TEXT,                                -- free text: "40", "BW"
-  notes       TEXT,
-  UNIQUE (block_id, position)
+  block_id    UUID NOT NULL REFERENCES blocks(id) ON DELETE CASCADE
 );
+
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS position INT NOT NULL DEFAULT 1;
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS name TEXT NOT NULL DEFAULT 'Exercise';
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS reps TEXT;   -- free text: "20", "45s", "10 ea/side"
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS weight TEXT; -- free text: "40", "BW"
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS notes TEXT;
+
+DO $$ BEGIN
+  ALTER TABLE activities ADD CONSTRAINT activities_block_id_position_key UNIQUE (block_id, position);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ── session_logs ────────────────────────────────────────────────────────
 -- Minimal completed-run record. Drives the Library weekly heatmap (a day
