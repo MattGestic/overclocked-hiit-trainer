@@ -49,6 +49,7 @@ Run [`supabase/schema.sql`](supabase/schema.sql) once in your project's SQL Edit
 - [`docs/requirements.md`](docs/requirements.md) — MVP user requirements
 - [`docs/architecture.md`](docs/architecture.md) — file layout, data flow, key design decisions
 - [`docs/test-plan.md`](docs/test-plan.md) — what's automated vs. what needs manual/on-device verification
+- [`docs/deployment.md`](docs/deployment.md) — deploy targets and the manual steps before going live
 - [`docs/decisions/`](docs/decisions/) — ADRs
 
 ## Known limitations (tracked, not accidental)

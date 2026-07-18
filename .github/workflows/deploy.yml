@@ -1,7 +1,7 @@
-name: Deploy user-testing to GitHub Pages
+name: Deploy to GitHub Pages
 on:
   push:
-    branches: [user-testing]
+    branches: [main]
   workflow_dispatch: {}
 
 permissions:
@@ -22,10 +22,10 @@ jobs:
         with:
           node-version: 22
       - run: npm ci
-      - run: npm run build -- --base=/overclocked-hiit-trainer/
+      - run: npm run build
         env:
-          VITE_SUPABASE_URL: ${{ secrets.USER_TESTING_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.USER_TESTING_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
