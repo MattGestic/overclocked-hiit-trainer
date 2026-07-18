@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react'
-import { useTheme } from './shared-ui'
+import { useTheme, useToast } from './shared-ui'
 import { supabase } from './lib/supabaseClient'
 import Login from './components/Login'
+import Library from './components/Library'
+import ProgrammeEditor from './components/ProgrammeEditor'
 
 export default function App() {
   const { dark, toggleTheme } = useTheme()
+  const toast = useToast()
   const [session, setSession] = useState(undefined) // undefined = still checking
+  const [view, setView] = useState({ screen: 'library' })
 
   useEffect(() => {
     if (!supabase) return
@@ -36,46 +40,37 @@ export default function App() {
   }
 
   return (
-    <div style={{
-      maxWidth: 512, margin: '0 auto', padding: '40px 20px',
-      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24,
-    }}>
-      <h1 style={{
-        fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 28,
-        letterSpacing: '0.06em', color: 'var(--color-text-primary)',
+    <>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8, maxWidth: 'var(--shell-max-mobile)',
+        height: 'var(--header-h)', boxSizing: 'border-box', margin: '0 auto', padding: '0 var(--shell-px-mobile)',
       }}>
-        OVER&bull;CLOCK
-      </h1>
-
-      <p style={{ color: 'var(--color-text-muted)', textAlign: 'center' }}>
-        Signed in as {session.user.email} — Library screen coming next.
-      </p>
-
-      <div style={{ display: 'flex', gap: 12 }}>
-        <button
-          onClick={toggleTheme}
-          style={{
-            fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12,
-            letterSpacing: '0.12em', padding: '12px 24px', borderRadius: 12,
-            background: 'var(--color-action-secondary)', color: 'var(--color-action-secondary-text)',
-            border: 'none', cursor: 'pointer',
-          }}
-        >
-          {dark ? 'LIGHT MODE' : 'DARK MODE'}
-        </button>
-
-        <button
-          onClick={() => supabase.auth.signOut()}
-          style={{
-            fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12,
-            letterSpacing: '0.12em', padding: '12px 24px', borderRadius: 12,
-            background: 'var(--color-action-danger)', color: 'var(--color-action-danger-text)',
-            border: 'none', cursor: 'pointer',
-          }}
-        >
-          SIGN OUT
-        </button>
+        <button onClick={toggleTheme} style={topBarBtn}>{dark ? 'LIGHT' : 'DARK'}</button>
+        <button onClick={() => supabase.auth.signOut()} style={topBarBtn}>SIGN OUT</button>
       </div>
-    </div>
+
+      {view.screen === 'library' && (
+        <Library
+          onNew={() => setView({ screen: 'editor', programmeId: null })}
+          onEdit={(id) => setView({ screen: 'editor', programmeId: id })}
+          onRun={() => toast?.('The workout runner is coming in a later build step.', 'success')}
+        />
+      )}
+
+      {view.screen === 'editor' && (
+        <ProgrammeEditor
+          programmeId={view.programmeId}
+          onSaved={() => setView({ screen: 'library' })}
+          onCancel={() => setView({ screen: 'library' })}
+        />
+      )}
+    </>
   )
+}
+
+const topBarBtn = {
+  fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10,
+  letterSpacing: '0.1em', padding: '8px 14px', borderRadius: 10,
+  background: 'var(--color-action-secondary)', color: 'var(--color-action-secondary-text)',
+  border: 'none', cursor: 'pointer',
 }
