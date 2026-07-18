@@ -18,7 +18,7 @@ function fetchLibraryData() {
     .then(([list, counts]) => ({ list, counts }))
 }
 
-export default function Library({ onNew, onEdit, onRun, onSettings }) {
+export default function Library({ onNew, onEdit, onRun, onSettings, onHistory }) {
   const [programmes, setProgrammes] = useState(null) // null = loading
   const [error, setError] = useState(null)
   const [dailyReps, setDailyReps] = useState({})
@@ -61,16 +61,29 @@ export default function Library({ onNew, onEdit, onRun, onSettings }) {
         }}>
           OVER&bull;CLOCK
         </h1>
-        <button
-          onClick={onSettings}
-          aria-label="Settings"
-          style={{
-            width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-action-secondary)',
-            color: 'var(--color-action-secondary-text)', border: 'none', cursor: 'pointer', fontSize: 16,
-          }}
-        >
-          &#9881;
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={onHistory}
+            aria-label="History"
+            style={{
+              height: 40, padding: '0 12px', borderRadius: 'var(--radius-md)', background: 'var(--color-action-secondary)',
+              color: 'var(--color-action-secondary-text)', border: 'none', cursor: 'pointer', fontSize: 11,
+              fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '0.06em',
+            }}
+          >
+            HISTORY
+          </button>
+          <button
+            onClick={onSettings}
+            aria-label="Settings"
+            style={{
+              width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-action-secondary)',
+              color: 'var(--color-action-secondary-text)', border: 'none', cursor: 'pointer', fontSize: 16,
+            }}
+          >
+            &#9881;
+          </button>
+        </div>
       </header>
 
       <DayDots

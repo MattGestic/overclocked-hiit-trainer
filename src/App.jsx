@@ -5,6 +5,7 @@ import Library from './components/Library'
 import ProgrammeEditor from './components/ProgrammeEditor'
 import ActiveWorkout from './components/ActiveWorkout'
 import Settings from './components/Settings'
+import History from './components/History'
 
 export default function App() {
   const [session, setSession] = useState(undefined) // undefined = still checking
@@ -45,6 +46,7 @@ export default function App() {
         onEdit={(id) => setView({ screen: 'editor', programmeId: id })}
         onRun={(id) => setView({ screen: 'workout', programmeId: id })}
         onSettings={() => setView({ screen: 'settings' })}
+        onHistory={() => setView({ screen: 'history' })}
       />
     )
   }
@@ -71,6 +73,10 @@ export default function App() {
 
   if (view.screen === 'settings') {
     return <Settings session={session} onBack={() => setView({ screen: 'library' })} />
+  }
+
+  if (view.screen === 'history') {
+    return <History onBack={() => setView({ screen: 'library' })} />
   }
 
   return null

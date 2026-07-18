@@ -19,6 +19,19 @@ export async function listSessionCountsSince(sinceDate) {
   return counts
 }
 
+// Full session rows, newest first — used by History for stats, the
+// calendar, and the recent-sessions list. No pagination: this is a
+// single-user personal app, not a scale concern for this MVP.
+export async function listAllSessions() {
+  const { data, error } = await supabase
+    .from('session_logs')
+    .select('id, programme_name, started_at, ended_at, status')
+    .order('started_at', { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
 // Written once per run, on natural completion or explicit Stop.
 // programme_name is snapshotted at record time so history survives the
 // programme itself being edited or deleted later.
