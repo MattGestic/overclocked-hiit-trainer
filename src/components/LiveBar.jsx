@@ -98,10 +98,10 @@ const s = {
   iconRow: { display: 'flex', gap: 6, flexShrink: 0 },
   iconBtn: {
     width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'rgba(255,255,255,0.08)', color: 'inherit', border: 'none',
+    background: 'var(--overlay-on-dark-1)', color: 'inherit', border: 'none',
     borderRadius: 'var(--radius-md)', cursor: 'pointer',
   },
   stopBtn: { background: 'var(--color-action-danger)', color: 'var(--color-action-danger-text)' },
-  progressTrack: { height: 3, background: 'rgba(255,255,255,0.12)', marginTop: 12, borderRadius: 2 },
+  progressTrack: { height: 3, background: 'var(--overlay-on-dark-2)', marginTop: 12, borderRadius: 2 },
   progressFill: { height: '100%', borderRadius: 2, transition: 'width 1s linear' },
 }

@@ -25,7 +25,7 @@ export async function listSessionCountsSince(sinceDate) {
 export async function listAllSessions() {
   const { data, error } = await supabase
     .from('session_logs')
-    .select('id, programme_name, started_at, ended_at, status')
+    .select('id, programme_name, block_count, started_at, ended_at, status')
     .order('started_at', { ascending: false })
 
   if (error) throw error
@@ -33,12 +33,13 @@ export async function listAllSessions() {
 }
 
 // Written once per run, on natural completion or explicit Stop.
-// programme_name is snapshotted at record time so history survives the
-// programme itself being edited or deleted later.
+// programme_name/block_count are snapshotted at record time so history
+// survives the programme itself being edited or deleted later.
 export async function recordSession(programme, startedAt, status) {
   const { error } = await supabase.from('session_logs').insert({
     programme_id: programme.id,
     programme_name: programme.name,
+    block_count: programme.blocks.length,
     started_at: startedAt,
     ended_at: new Date().toISOString(),
     status,

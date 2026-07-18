@@ -78,7 +78,7 @@ export default function App() {
   }
 
   if (view.screen === 'history') {
-    return <History onBack={goBack} navigate={navigate} />
+    return <History navigate={navigate} />
   }
 
   return null
