@@ -47,7 +47,7 @@ export default function App() {
         onEdit={(id) => navigate({ screen: 'editor', programmeId: id })}
         onRun={(id) => navigate({ screen: 'workout', programmeId: id })}
         onSettings={() => navigate({ screen: 'settings' })}
-        onHistory={() => navigate({ screen: 'history' })}
+        navigate={navigate}
       />
     )
   }
@@ -68,6 +68,7 @@ export default function App() {
         programmeId={view.programmeId}
         onBack={goBack}
         onEdit={(id) => navigate({ screen: 'editor', programmeId: id })}
+        navigate={navigate}
       />
     )
   }
@@ -77,7 +78,7 @@ export default function App() {
   }
 
   if (view.screen === 'history') {
-    return <History onBack={goBack} />
+    return <History onBack={goBack} navigate={navigate} />
   }
 
   return null

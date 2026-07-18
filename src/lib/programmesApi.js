@@ -6,7 +6,10 @@ import { supabase } from './supabaseClient'
 export async function listProgrammes() {
   const { data, error } = await supabase
     .from('programmes')
-    .select('id, name, type, updated_at, blocks(count)')
+    .select(`
+      id, name, type, updated_at,
+      blocks ( repeat_count, active_seconds, recover_seconds, activities(count) )
+    `)
     .order('updated_at', { ascending: false })
 
   if (error) throw error
@@ -16,8 +19,22 @@ export async function listProgrammes() {
     name: row.name,
     type: row.type,
     updatedAt: row.updated_at,
-    blockCount: row.blocks[0]?.count ?? 0,
+    blockCount: row.blocks.length,
+    durationMinutes: estimateDurationMinutes(row.blocks),
   }))
+}
+
+// Rough estimate for the Library card badge — repeat × activity-count ×
+// (active + recover) per block, summed. Overestimates slightly (the very
+// last recover of a run is skipped by the timer engine) but that's an
+// acceptable trade for a single cheap nested query instead of N+1 full
+// getProgramme() calls just to badge a list.
+function estimateDurationMinutes(blocks) {
+  const totalSeconds = blocks.reduce((sum, b) => {
+    const activityCount = b.activities[0]?.count ?? 0
+    return sum + b.repeat_count * activityCount * (b.active_seconds + b.recover_seconds)
+  }, 0)
+  return Math.max(1, Math.round(totalSeconds / 60))
 }
 
 export async function getProgramme(id) {

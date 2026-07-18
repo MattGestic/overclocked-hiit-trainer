@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { timeAgo } from '../shared-ui/utils/format'
 import { listAllSessions } from '../lib/sessionLogsApi'
 import { useLayout } from '../hooks/useLayout'
+import AppTabBar from './AppTabBar'
 
 const WEEKDAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
@@ -52,7 +53,7 @@ function buildMonthGrid(monthOffset) {
   return { cells, label: anchor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) }
 }
 
-export default function History({ onBack }) {
+export default function History({ onBack, navigate }) {
   const [sessions, setSessions] = useState(null)
   const [error, setError] = useState(null)
   const [monthOffset, setMonthOffset] = useState(0)
@@ -158,6 +159,8 @@ export default function History({ onBack }) {
           )}
         </>
       )}
+
+      <AppTabBar active="history" onNavigate={(id) => id === 'library' && navigate({ screen: 'library' })} />
     </div>
   )
 }
