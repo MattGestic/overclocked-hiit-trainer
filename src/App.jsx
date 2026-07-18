@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
-import { useTheme, useToast } from './shared-ui'
+import { useTheme } from './shared-ui'
 import { supabase } from './lib/supabaseClient'
 import Login from './components/Login'
 import Library from './components/Library'
 import ProgrammeEditor from './components/ProgrammeEditor'
+import ActiveWorkout from './components/ActiveWorkout'
 
 export default function App() {
   const { dark, toggleTheme } = useTheme()
-  const toast = useToast()
   const [session, setSession] = useState(undefined) // undefined = still checking
   const [view, setView] = useState({ screen: 'library' })
 
@@ -41,19 +41,21 @@ export default function App() {
 
   return (
     <>
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8, maxWidth: 'var(--shell-max-mobile)',
-        height: 'var(--header-h)', boxSizing: 'border-box', margin: '0 auto', padding: '0 var(--shell-px-mobile)',
-      }}>
-        <button onClick={toggleTheme} style={topBarBtn}>{dark ? 'LIGHT' : 'DARK'}</button>
-        <button onClick={() => supabase.auth.signOut()} style={topBarBtn}>SIGN OUT</button>
-      </div>
+      {view.screen !== 'workout' && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8, maxWidth: 'var(--shell-max-mobile)',
+          height: 'var(--header-h)', boxSizing: 'border-box', margin: '0 auto', padding: '0 var(--shell-px-mobile)',
+        }}>
+          <button onClick={toggleTheme} style={topBarBtn}>{dark ? 'LIGHT' : 'DARK'}</button>
+          <button onClick={() => supabase.auth.signOut()} style={topBarBtn}>SIGN OUT</button>
+        </div>
+      )}
 
       {view.screen === 'library' && (
         <Library
           onNew={() => setView({ screen: 'editor', programmeId: null })}
           onEdit={(id) => setView({ screen: 'editor', programmeId: id })}
-          onRun={() => toast?.('The workout runner is coming in a later build step.', 'success')}
+          onRun={(id) => setView({ screen: 'workout', programmeId: id })}
         />
       )}
 
@@ -62,6 +64,14 @@ export default function App() {
           programmeId={view.programmeId}
           onSaved={() => setView({ screen: 'library' })}
           onCancel={() => setView({ screen: 'library' })}
+        />
+      )}
+
+      {view.screen === 'workout' && (
+        <ActiveWorkout
+          programmeId={view.programmeId}
+          onBack={() => setView({ screen: 'library' })}
+          onEdit={(id) => setView({ screen: 'editor', programmeId: id })}
         />
       )}
     </>

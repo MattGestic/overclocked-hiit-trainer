@@ -25,7 +25,7 @@ const initialState = {
 
 // Where does (blockIndex, roundIndex, activityIndex) go next? null means
 // there is no next activity — the programme is finished.
-function nextIndices(programme, blockIndex, roundIndex, activityIndex) {
+export function nextIndices(programme, blockIndex, roundIndex, activityIndex) {
   const block = programme.blocks[blockIndex]
   if (activityIndex + 1 < block.activities.length) {
     return { blockIndex, roundIndex, activityIndex: activityIndex + 1 }
