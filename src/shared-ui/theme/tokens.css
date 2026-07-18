@@ -1,0 +1,759 @@
+/* ==========================================================================
+   OVERCLOCK FITNESS — SHARED UI DESIGN TOKENS v1.0
+   Apps: REP•STACK · OVERCLOCK (HIIT Trainer)
+   ──────────────────────────────────────────────
+   Usage rule: components consume semantic tokens ONLY.
+   Never reference raw values inside components.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   LIGHT THEME (default)
+   ========================================================================== */
+
+:root,
+[data-theme="light"] {
+
+  /* ── Brand scale ─────────────────────────────────────────── */
+  --color-brand-primary:         #111827;
+  --color-brand-primary-hover:   #1f2937;
+  --color-brand-primary-pressed: #030712;
+
+  --color-brand-lime:            #84cc16;  /* REP•STACK identity green */
+  --color-brand-lime-hover:      #65a30d;
+  --color-brand-lime-pressed:    #4d7c0f;
+
+  --color-brand-orange:          #f97316;  /* streak / accent */
+  --color-brand-orange-hover:    #ea580c;
+  --color-brand-orange-pressed:  #c2410c;
+
+  /* ── Surfaces ────────────────────────────────────────────── */
+  --color-bg-app:              #f5f0df;
+  --color-bg-app-subtle:       #fbf7ea;
+  --color-bg-surface:          #ffffff;
+  --color-bg-surface-subtle:   #f8f5ec;
+  --color-bg-surface-elevated: #ffffff;
+  --color-bg-inverse:          #111827;
+  --color-bg-overlay:          rgba(17, 24, 39, 0.56);
+  --color-bg-scrim:            rgba(17, 24, 39, 0.72);
+
+  /* ── Text ────────────────────────────────────────────────── */
+  --color-text-primary:    #111827;
+  --color-text-secondary:  #374151;
+  --color-text-muted:      #6b7280;
+  --color-text-subtle:     #9ca3af;
+  --color-text-disabled:   #a8a29e;
+  --color-text-on-primary: #ffffff;
+  --color-text-on-lime:    #111827;
+  --color-text-on-accent:  #ffffff;
+  --color-text-inverse:    #f9fafb;
+
+  /* ── Borders ─────────────────────────────────────────────── */
+  --color-border-subtle:  #e7dfcc;
+  --color-border-default: #d6ccb7;
+  --color-border-strong:  #a89f8d;
+  --color-border-inverse: rgba(255, 255, 255, 0.18);
+  --color-border-focus:   #84cc16;
+  --color-border-error:   #dc2626;
+  --color-border-success: #16a34a;
+  --color-border-warning: #f59e0b;
+
+  /* ── Actions ─────────────────────────────────────────────── */
+  --color-action-primary:         #111827;
+  --color-action-primary-hover:   #1f2937;
+  --color-action-primary-pressed: #030712;
+  --color-action-primary-text:    #ffffff;
+
+  --color-action-secondary:         #e7dfcc;
+  --color-action-secondary-hover:   #d6ccb7;
+  --color-action-secondary-pressed: #c8bea8;
+  --color-action-secondary-text:    #111827;
+
+  --color-action-positive:         #84cc16;
+  --color-action-positive-hover:   #65a30d;
+  --color-action-positive-pressed: #4d7c0f;
+  --color-action-positive-text:    #111827;
+
+  --color-action-danger:         #dc2626;
+  --color-action-danger-hover:   #b91c1c;
+  --color-action-danger-pressed: #991b1b;
+  --color-action-danger-text:    #ffffff;
+
+  --color-action-disabled-bg:     #e5e0d3;
+  --color-action-disabled-text:   #a8a29e;
+  --color-action-disabled-border: #d6ccb7;
+
+  /* ── Status ──────────────────────────────────────────────── */
+  --color-success-bg:     #ecfdf3;
+  --color-success-surface:#dcfce7;
+  --color-success-text:   #166534;
+  --color-success-border: #86efac;
+  --color-success-icon:   #16a34a;
+
+  --color-warning-bg:     #fffbeb;
+  --color-warning-surface:#fef3c7;
+  --color-warning-text:   #92400e;
+  --color-warning-border: #fcd34d;
+  --color-warning-icon:   #f59e0b;
+
+  --color-error-bg:     #fef2f2;
+  --color-error-surface:#fee2e2;
+  --color-error-text:   #991b1b;
+  --color-error-border: #fca5a5;
+  --color-error-icon:   #dc2626;
+
+  --color-info-bg:     #eff6ff;
+  --color-info-surface:#dbeafe;
+  --color-info-text:   #1e40af;
+  --color-info-border: #93c5fd;
+  --color-info-icon:   #2563eb;
+
+  /* ── Fitness / activity semantics ────────────────────────── */
+  --color-progress-fill:        #84cc16;
+  --color-progress-fill-strong: #65a30d;
+  --color-progress-track:       #e7dfcc;
+
+  --color-streak:          #f97316;
+  --color-personal-best:   #84cc16;
+  --color-challenge-solo:  #2563eb;
+  --color-challenge-group: #7c3aed;
+
+  /* Timer phases — shared between HIIT app and any countdown UIs */
+  --color-timer-work:     #84cc16;
+  --color-timer-rest:     #38bdf8;
+  --color-timer-warning:  #f97316;
+  --color-timer-complete: #22c55e;
+
+  /* ── Charts ──────────────────────────────────────────────── */
+  --color-chart-line-primary:   #84cc16;
+  --color-chart-line-secondary: #2563eb;
+  --color-chart-line-tertiary:  #f97316;
+  --color-chart-bar-primary:    #84cc16;
+  --color-chart-bar-secondary:  #111827;
+  --color-chart-grid:           rgba(17, 24, 39, 0.12);
+  --color-chart-axis:           #6b7280;
+  --color-chart-tooltip-bg:     #111827;
+  --color-chart-tooltip-text:   #ffffff;
+
+  /* ── Navigation ──────────────────────────────────────────── */
+  --color-nav-bg:              #ffffff;
+  --color-nav-border:          #e7dfcc;
+  --color-nav-item:            #78716c;
+  --color-nav-item-hover:      #374151;
+  --color-nav-item-active:     #111827;
+  --color-nav-item-active-bg:  #ecfccb;
+
+  /* ── Forms ───────────────────────────────────────────────── */
+  --color-input-bg:           #ffffff;
+  --color-input-bg-disabled:  #f3f0e8;
+  --color-input-border:       #d6ccb7;
+  --color-input-border-hover: #a89f8d;
+  --color-input-border-focus: #84cc16;
+  --color-input-text:         #111827;
+  --color-input-placeholder:  #9ca3af;
+  --color-input-label:        #374151;
+  --color-input-helper:       #6b7280;
+  --color-input-error:        #dc2626;
+
+  /* ── Typography ──────────────────────────────────────────── */
+  --font-display: "Oswald", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-body:    "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:    "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  --text-xs:   0.75rem;    /* 12px */
+  --text-sm:   0.875rem;   /* 14px */
+  --text-md:   1rem;       /* 16px */
+  --text-lg:   1.125rem;   /* 18px */
+  --text-xl:   1.25rem;    /* 20px */
+  --text-2xl:  1.5rem;     /* 24px */
+  --text-3xl:  1.875rem;   /* 30px */
+  --text-4xl:  2.25rem;    /* 36px */
+  --text-5xl:  3rem;       /* 48px */
+  --text-hero: 5rem;       /* 80px */
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-black:    900;
+
+  --leading-tight:   1.05;
+  --leading-heading: 1.15;
+  --leading-body:    1.5;
+  --leading-relaxed: 1.65;
+
+  --tracking-tight:  -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.04em;
+  --tracking-wider:  0.08em;
+  --tracking-label:  0.12em;
+
+  /* ── Spacing ─────────────────────────────────────────────── */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* ── Radius ──────────────────────────────────────────────── */
+  --radius-none: 0;
+  --radius-xs:   0.25rem;
+  --radius-sm:   0.375rem;
+  --radius-md:   0.5rem;
+  --radius-lg:   0.75rem;
+  --radius-xl:   1rem;
+  --radius-2xl:  1.25rem;
+  --radius-3xl:  1.5rem;
+  --radius-full: 999px;
+
+  /* Semantic radius aliases */
+  --radius-card:   var(--radius-2xl);
+  --radius-button: var(--radius-xl);
+  --radius-input:  var(--radius-lg);
+  --radius-modal:  var(--radius-3xl);
+  --radius-chip:   var(--radius-full);
+
+  /* ── Shadows ─────────────────────────────────────────────── */
+  --shadow-xs:   0 1px 2px rgba(17, 24, 39, 0.06);
+  --shadow-sm:   0 2px 6px rgba(17, 24, 39, 0.08);
+  --shadow-md:   0 6px 16px rgba(17, 24, 39, 0.12);
+  --shadow-lg:   0 12px 32px rgba(17, 24, 39, 0.16);
+  --shadow-xl:   0 20px 48px rgba(17, 24, 39, 0.22);
+  --shadow-focus: 0 0 0 3px rgba(132, 204, 22, 0.35);
+
+  /* Semantic shadow aliases */
+  --shadow-card:       var(--shadow-sm);
+  --shadow-card-hover: var(--shadow-md);
+  --shadow-dialog:     var(--shadow-xl);
+
+  /* ── Component sizes ─────────────────────────────────────── */
+  --size-touch-min: 44px;
+
+  --btn-h-sm: 36px;
+  --btn-h-md: 44px;
+  --btn-h-lg: 52px;
+  --btn-h-xl: 60px;
+
+  --input-h-sm: 36px;
+  --input-h-md: 44px;
+  --input-h-lg: 52px;
+
+  --icon-xs: 14px;
+  --icon-sm: 16px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --icon-xl: 32px;
+
+  --avatar-sm: 28px;
+  --avatar-md: 36px;
+  --avatar-lg: 48px;
+  --avatar-xl: 64px;
+
+  /* ── App shell ───────────────────────────────────────────── */
+  --shell-max-mobile:  512px;
+  --shell-max-tablet:  640px;
+  --shell-max-desktop: 680px;
+  --shell-max-large:   720px;
+
+  --shell-px-mobile:  20px;
+  --shell-px-tablet:  32px;
+  --shell-px-desktop: 40px;
+
+  --header-h:      72px;
+  --bottom-nav-h:  76px;
+  --safe-bottom:   env(safe-area-inset-bottom, 0px);
+
+  /* ── Z-index ─────────────────────────────────────────────── */
+  --z-base:           0;
+  --z-raised:         10;
+  --z-dropdown:       100;
+  --z-sticky:         200;
+  --z-fixed:          300;
+  --z-modal-backdrop: 400;
+  --z-modal:          500;
+  --z-toast:          600;
+  --z-tooltip:        700;
+
+  /* ── Motion ──────────────────────────────────────────────── */
+  --dur-instant: 0ms;
+  --dur-fast:    120ms;
+  --dur-normal:  200ms;
+  --dur-slow:    320ms;
+  --dur-slower:  500ms;
+
+  --ease-standard:  cubic-bezier(0.2, 0, 0, 1);
+  --ease-in:        cubic-bezier(0.4, 0, 1, 1);
+  --ease-out:       cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --transition-fast:   var(--dur-fast)   var(--ease-standard);
+  --transition-normal: var(--dur-normal) var(--ease-standard);
+  --transition-slow:   var(--dur-slow)   var(--ease-standard);
+
+  /* ── Opacity ─────────────────────────────────────────────── */
+  --opacity-disabled: 0.48;
+  --opacity-muted:    0.64;
+  --opacity-overlay:  0.56;
+
+  /* ── Focus ring ──────────────────────────────────────────── */
+  --focus-ring-color:  rgba(132, 204, 22, 0.45);
+  --focus-ring-width:  3px;
+  --focus-ring-offset: 2px;
+
+  /* ── Semantic component tokens (derived) ─────────────────── */
+  --card-bg:         var(--color-bg-surface);
+  --card-border:     var(--color-border-subtle);
+  --card-radius:     var(--radius-card);
+  --card-shadow:     var(--shadow-card);
+  --card-padding-sm: var(--space-4);
+  --card-padding-md: var(--space-5);
+  --card-padding-lg: var(--space-6);
+
+  --dialog-bg:          var(--color-bg-surface);
+  --dialog-border:      var(--color-border-subtle);
+  --dialog-radius:      var(--radius-modal);
+  --dialog-shadow:      var(--shadow-dialog);
+  --dialog-padding:     var(--space-6);
+  --dialog-max-sm:      360px;
+  --dialog-max-md:      480px;
+  --dialog-max-lg:      640px;
+
+  --toast-bg:     var(--color-bg-inverse);
+  --toast-text:   var(--color-text-inverse);
+  --toast-border: var(--color-border-inverse);
+  --toast-radius: var(--radius-xl);
+  --toast-shadow: var(--shadow-lg);
+
+  --btn-font:          var(--font-display);
+  --btn-weight:        var(--weight-bold);
+  --btn-tracking:      var(--tracking-wide);
+  --btn-radius:        var(--radius-button);
+  --btn-border-width:  1px;
+}
+
+
+/* ==========================================================================
+   DARK THEME
+   Used by default in REP•STACK and OVERCLOCK apps
+   ========================================================================== */
+
+[data-theme="dark"] {
+
+  /* ── Brand scale ─────────────────────────────────────────── */
+  --color-brand-primary:         #f9fafb;
+  --color-brand-primary-hover:   #e5e7eb;
+  --color-brand-primary-pressed: #d1d5db;
+
+  --color-brand-lime:            #a3e635;
+  --color-brand-lime-hover:      #84cc16;
+  --color-brand-lime-pressed:    #65a30d;
+
+  --color-brand-orange:          #fb923c;
+  --color-brand-orange-hover:    #f97316;
+  --color-brand-orange-pressed:  #ea580c;
+
+  /* ── Surfaces ────────────────────────────────────────────── */
+  --color-bg-app:              #060b14;   /* REP•STACK deepest bg */
+  --color-bg-app-subtle:       #0b1220;
+  --color-bg-surface:          #101827;
+  --color-bg-surface-subtle:   #111c2f;
+  --color-bg-surface-elevated: #152036;
+  --color-bg-inverse:          #f9fafb;
+  --color-bg-overlay:          rgba(0, 0, 0, 0.62);
+  --color-bg-scrim:            rgba(0, 0, 0, 0.78);
+
+  /* ── Text ────────────────────────────────────────────────── */
+  --color-text-primary:    #f9fafb;
+  --color-text-secondary:  #d1d5db;
+  --color-text-muted:      #9ca3af;
+  --color-text-subtle:     #6b7280;
+  --color-text-disabled:   #4b5563;
+  --color-text-on-primary: #111827;
+  --color-text-on-lime:    #111827;
+  --color-text-on-accent:  #111827;
+  --color-text-inverse:    #111827;
+
+  /* ── Borders ─────────────────────────────────────────────── */
+  --color-border-subtle:  rgba(255, 255, 255, 0.08);
+  --color-border-default: rgba(255, 255, 255, 0.14);
+  --color-border-strong:  rgba(255, 255, 255, 0.24);
+  --color-border-inverse: rgba(17, 24, 39, 0.16);
+  --color-border-focus:   #a3e635;
+  --color-border-error:   #f87171;
+  --color-border-success: #4ade80;
+  --color-border-warning: #fbbf24;
+
+  /* ── Actions ─────────────────────────────────────────────── */
+  --color-action-primary:         #a3e635;
+  --color-action-primary-hover:   #84cc16;
+  --color-action-primary-pressed: #65a30d;
+  --color-action-primary-text:    #111827;
+
+  --color-action-secondary:         #1f2937;
+  --color-action-secondary-hover:   #273449;
+  --color-action-secondary-pressed: #334155;
+  --color-action-secondary-text:    #f9fafb;
+
+  --color-action-positive:         #a3e635;
+  --color-action-positive-hover:   #84cc16;
+  --color-action-positive-pressed: #65a30d;
+  --color-action-positive-text:    #111827;
+
+  --color-action-danger:         #f87171;
+  --color-action-danger-hover:   #ef4444;
+  --color-action-danger-pressed: #dc2626;
+  --color-action-danger-text:    #111827;
+
+  --color-action-disabled-bg:     #1f2937;
+  --color-action-disabled-text:   #6b7280;
+  --color-action-disabled-border: rgba(255, 255, 255, 0.08);
+
+  /* ── Status ──────────────────────────────────────────────── */
+  --color-success-bg:     rgba(34, 197, 94, 0.12);
+  --color-success-surface:rgba(34, 197, 94, 0.18);
+  --color-success-text:   #bbf7d0;
+  --color-success-border: rgba(74, 222, 128, 0.36);
+  --color-success-icon:   #4ade80;
+
+  --color-warning-bg:     rgba(245, 158, 11, 0.12);
+  --color-warning-surface:rgba(245, 158, 11, 0.18);
+  --color-warning-text:   #fde68a;
+  --color-warning-border: rgba(251, 191, 36, 0.36);
+  --color-warning-icon:   #fbbf24;
+
+  --color-error-bg:     rgba(239, 68, 68, 0.12);
+  --color-error-surface:rgba(239, 68, 68, 0.18);
+  --color-error-text:   #fecaca;
+  --color-error-border: rgba(248, 113, 113, 0.36);
+  --color-error-icon:   #f87171;
+
+  --color-info-bg:     rgba(59, 130, 246, 0.12);
+  --color-info-surface:rgba(59, 130, 246, 0.18);
+  --color-info-text:   #bfdbfe;
+  --color-info-border: rgba(96, 165, 250, 0.36);
+  --color-info-icon:   #60a5fa;
+
+  /* ── Fitness semantics ───────────────────────────────────── */
+  --color-progress-fill:        #a3e635;
+  --color-progress-fill-strong: #84cc16;
+  --color-progress-track:       rgba(255, 255, 255, 0.12);
+
+  --color-streak:          #fb923c;
+  --color-personal-best:   #a3e635;
+  --color-challenge-solo:  #60a5fa;
+  --color-challenge-group: #a78bfa;
+
+  --color-timer-work:     #a3e635;
+  --color-timer-rest:     #38bdf8;
+  --color-timer-warning:  #fb923c;
+  --color-timer-complete: #4ade80;
+
+  /* ── Charts ──────────────────────────────────────────────── */
+  --color-chart-line-primary:   #a3e635;
+  --color-chart-line-secondary: #60a5fa;
+  --color-chart-line-tertiary:  #fb923c;
+  --color-chart-bar-primary:    #a3e635;
+  --color-chart-bar-secondary:  #f9fafb;
+  --color-chart-grid:           rgba(255, 255, 255, 0.10);
+  --color-chart-axis:           #9ca3af;
+  --color-chart-tooltip-bg:     #f9fafb;
+  --color-chart-tooltip-text:   #111827;
+
+  /* ── Navigation ──────────────────────────────────────────── */
+  --color-nav-bg:             #101827;
+  --color-nav-border:         rgba(255, 255, 255, 0.08);
+  --color-nav-item:           #9ca3af;
+  --color-nav-item-hover:     #f9fafb;
+  --color-nav-item-active:    #a3e635;
+  --color-nav-item-active-bg: rgba(163, 230, 53, 0.12);
+
+  /* ── Forms ───────────────────────────────────────────────── */
+  --color-input-bg:           #101827;
+  --color-input-bg-disabled:  #111827;
+  --color-input-border:       rgba(255, 255, 255, 0.12);
+  --color-input-border-hover: rgba(255, 255, 255, 0.22);
+  --color-input-border-focus: #a3e635;
+  --color-input-text:         #f9fafb;
+  --color-input-placeholder:  #6b7280;
+  --color-input-label:        #d1d5db;
+  --color-input-helper:       #9ca3af;
+  --color-input-error:        #f87171;
+
+  /* ── Shadows (darker/stronger for dark surfaces) ─────────── */
+  --shadow-xs:   0 1px 2px rgba(0, 0, 0, 0.24);
+  --shadow-sm:   0 2px 8px rgba(0, 0, 0, 0.28);
+  --shadow-md:   0 8px 20px rgba(0, 0, 0, 0.36);
+  --shadow-lg:   0 16px 36px rgba(0, 0, 0, 0.42);
+  --shadow-xl:   0 24px 56px rgba(0, 0, 0, 0.52);
+  --shadow-focus: 0 0 0 3px rgba(163, 230, 53, 0.42);
+
+  --shadow-card:       var(--shadow-sm);
+  --shadow-card-hover: var(--shadow-md);
+  --shadow-dialog:     var(--shadow-xl);
+
+  /* ── Focus ring ──────────────────────────────────────────── */
+  --focus-ring-color: rgba(163, 230, 53, 0.45);
+
+  /* ── Component overrides ─────────────────────────────────── */
+  --card-bg:       var(--color-bg-surface);
+  --card-border:   var(--color-border-subtle);
+
+  --dialog-bg:     var(--color-bg-surface-elevated);
+  --dialog-border: var(--color-border-default);
+
+  --toast-bg:     #f9fafb;
+  --toast-text:   #111827;
+  --toast-border: rgba(17, 24, 39, 0.14);
+}
+
+
+/* ==========================================================================
+   APP SHELL
+   ========================================================================== */
+
+.app-shell {
+  width: 100%;
+  max-width: var(--shell-max-mobile);
+  margin-inline: auto;
+  padding-inline: var(--shell-px-mobile);
+  padding-block: var(--space-5);
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    max-width: var(--shell-max-tablet);
+    padding-inline: var(--shell-px-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-shell {
+    max-width: var(--shell-max-desktop);
+    padding-inline: var(--shell-px-desktop);
+  }
+}
+
+
+/* ==========================================================================
+   GLOBAL BASE
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { min-height: 100%; color-scheme: light dark; }
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--color-bg-app);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+img, svg, video { display: block; max-width: 100%; }
+
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+::selection {
+  background: var(--color-brand-lime);
+  color: var(--color-text-on-lime);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+
+/* ==========================================================================
+   COMPONENT RECIPES
+   Reference implementations — copy into per-component files.
+   ========================================================================== */
+
+/* ── Card ────────────────────────────────────────────────────── */
+.ui-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  padding: var(--card-padding-md);
+  transition: box-shadow var(--transition-normal);
+}
+.ui-card:hover { box-shadow: var(--shadow-card-hover); }
+
+/* ── Button base ─────────────────────────────────────────────── */
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--btn-h-md);
+  min-width: var(--size-touch-min);
+  border: var(--btn-border-width) solid transparent;
+  border-radius: var(--btn-radius);
+  padding-inline: var(--space-5);
+  font-family: var(--btn-font);
+  font-weight: var(--btn-weight);
+  letter-spacing: var(--btn-tracking);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+.ui-btn:active { transform: translateY(1px); }
+.ui-btn:disabled {
+  background: var(--color-action-disabled-bg);
+  color: var(--color-action-disabled-text);
+  border-color: var(--color-action-disabled-border);
+  opacity: var(--opacity-disabled);
+}
+
+.ui-btn-primary {
+  background: var(--color-action-primary);
+  color: var(--color-action-primary-text);
+}
+.ui-btn-primary:hover { background: var(--color-action-primary-hover); }
+.ui-btn-primary:active { background: var(--color-action-primary-pressed); }
+
+.ui-btn-positive {
+  background: var(--color-action-positive);
+  color: var(--color-action-positive-text);
+}
+.ui-btn-positive:hover { background: var(--color-action-positive-hover); }
+
+.ui-btn-secondary {
+  background: var(--color-action-secondary);
+  color: var(--color-action-secondary-text);
+}
+.ui-btn-secondary:hover { background: var(--color-action-secondary-hover); }
+
+.ui-btn-danger {
+  background: var(--color-action-danger);
+  color: var(--color-action-danger-text);
+}
+.ui-btn-danger:hover { background: var(--color-action-danger-hover); }
+
+.ui-btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-color: var(--color-border-default);
+}
+.ui-btn-ghost:hover { background: var(--color-action-secondary); }
+
+/* ── Input ───────────────────────────────────────────────────── */
+.ui-input {
+  min-height: var(--input-h-md);
+  width: 100%;
+  border-radius: var(--radius-input);
+  border: 1px solid var(--color-input-border);
+  background: var(--color-input-bg);
+  color: var(--color-input-text);
+  padding-inline: var(--space-4);
+  font-size: var(--text-sm);
+  transition: border-color var(--transition-fast);
+}
+.ui-input::placeholder { color: var(--color-input-placeholder); }
+.ui-input:hover { border-color: var(--color-input-border-hover); }
+.ui-input:focus { border-color: var(--color-input-border-focus); outline: none; }
+.ui-input.error { border-color: var(--color-input-error); }
+
+/* ── Chip / Badge ────────────────────────────────────────────── */
+.ui-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  border-radius: var(--radius-chip);
+  padding-inline: var(--space-3);
+  background: var(--color-bg-surface-subtle);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-subtle);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+.ui-chip-lime { background: rgba(163, 230, 53, 0.15); color: var(--color-brand-lime); border-color: rgba(163, 230, 53, 0.25); }
+.ui-chip-orange { background: rgba(249, 115, 22, 0.15); color: var(--color-brand-orange); border-color: rgba(249, 115, 22, 0.25); }
+
+/* ── Progress bar ────────────────────────────────────────────── */
+.ui-progress {
+  width: 100%;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-progress-track);
+  overflow: hidden;
+}
+.ui-progress-bar {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-progress-fill);
+  transition: width var(--transition-slow);
+}
+
+/* ── Dialog ──────────────────────────────────────────────────── */
+.ui-dialog {
+  width: min(100%, var(--dialog-max-md));
+  background: var(--dialog-bg);
+  border: 1px solid var(--dialog-border);
+  border-radius: var(--dialog-radius);
+  box-shadow: var(--dialog-shadow);
+  padding: var(--dialog-padding);
+}
+
+/* ── Bottom nav ──────────────────────────────────────────────── */
+.ui-bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  min-height: calc(var(--bottom-nav-h) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: var(--color-nav-bg);
+  border-top: 1px solid var(--color-nav-border);
+  display: flex;
+  align-items: center;
+  z-index: var(--z-fixed);
+}
+.ui-nav-item { color: var(--color-nav-item); }
+.ui-nav-item[aria-current="page"] {
+  color: var(--color-nav-item-active);
+  background: var(--color-nav-item-active-bg);
+}
+
+/* ── Toast ───────────────────────────────────────────────────── */
+.ui-toast {
+  background: var(--toast-bg);
+  color: var(--toast-text);
+  border: 1px solid var(--toast-border);
+  border-radius: var(--toast-radius);
+  box-shadow: var(--toast-shadow);
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+}
+
+/* ── Status banners ──────────────────────────────────────────── */
+.ui-banner-success { background: var(--color-success-bg); border: 1px solid var(--color-success-border); color: var(--color-success-text); border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4); }
+.ui-banner-warning { background: var(--color-warning-bg); border: 1px solid var(--color-warning-border); color: var(--color-warning-text); border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4); }
+.ui-banner-error   { background: var(--color-error-bg);   border: 1px solid var(--color-error-border);   color: var(--color-error-text);   border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4); }
+.ui-banner-info    { background: var(--color-info-bg);    border: 1px solid var(--color-info-border);    color: var(--color-info-text);    border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4); }
