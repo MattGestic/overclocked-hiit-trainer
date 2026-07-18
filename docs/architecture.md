@@ -10,14 +10,20 @@ src/
 
   components/
     Login.jsx                   Email/password form
-    Library.jsx                 Programme list, weekly heatmap, responsive grid
+    Library.jsx                 Programme list, weekly DONE/MISSED/PLANNED calendar strip,
+                                 responsive grid
     ProgrammeEditor.jsx         Create/edit form — name/type/intro/blocks/activities
     ActiveWorkout.jsx           Owns the single useTimerEngine instance for a run;
                                  overview + LiveBar, or delegates to TimerRun when expanded
     LiveBar.jsx                 Persistent status strip (exercise, phase, controls)
-    TimerRun.jsx                Fullscreen timer; landscape split view via useLayout
+    TimerRun.jsx                Fullscreen timer; fixed light "paper" card by default with
+                                 an opt-in fully-saturated colour-flood mode, landscape split
+                                 view via useLayout (see "Timer visual modes" below)
     BlockList.jsx                Block/exercise table — shared by ActiveWorkout and
                                  TimerRun's split view, so it exists in exactly one place
+    AppTabBar.jsx                 Persistent Library/History bottom tab bar, with a
+                                 contextual third "Running" tab while a workout is active
+    icons.jsx                    Small inline SVG icon set — no icon library dependency
     Settings.jsx                Name, theme, density, sign out
     History.jsx                 Computed stats, month calendar, recent sessions
 
@@ -32,7 +38,8 @@ src/
     supabaseClient.js            Single Supabase client instance
     programmesApi.js             Programme/block/activity CRUD, row<->client shape mapping
     sessionLogsApi.js            Session logging + stats queries
-    audioEngine.js                Cue playback — currently a placeholder (see below)
+    audioEngine.js                Cue playback — delivered module, real decoded audio assets
+                                 (see "Audio engine" below)
 
   shared-ui/                     Vendored design system (see ADR 0002) — tokens, ThemeProvider,
                                  ToastProvider, DayDots, TabBar, Avatar, etc.
@@ -139,9 +146,13 @@ Maps directly onto `supabase/schema.sql`'s `programmes` / `blocks` /
 **`session_logs`** is a separate, minimal table (`programme_id`,
 `programme_name` snapshot, `started_at`, `ended_at`, `status`) written once
 per run by `recordSession()` — on natural completion or on explicit Stop.
-It intentionally doesn't model workout *scheduling* ("missed" vs.
-"planned") — there's no scheduling feature to back that distinction yet, so
-days without a session render as neutral, not missed.
+It intentionally doesn't model workout *scheduling* — there's no
+scheduling feature or table. The Library week strip's DONE/MISSED/PLANNED
+legend is derived purely from a day's position relative to today plus
+whether a session was logged, not from any stored "planned" data: a day
+with a session is DONE; a past day without one is MISSED; a future day is
+PLANNED regardless of whether anything is actually scheduled for it; today
+without a session yet is neutral (the day isn't over).
 
 ### Known limitation: delete-and-reinsert save
 
@@ -164,6 +175,35 @@ scale, spacing, radii, shadows, motion — dark and light themes) plus the
 `[data-density="compact"]` block that gives the Settings density toggle
 real effect.
 
+## Timer visual modes
+
+`TimerRun.jsx` has two independent visual states, both from the refined-UI
+reference:
+
+- **Default ("paper") mode** — a fixed cream/navy card look
+  (`--color-timer-paper*` tokens), deliberately *not* tied to the app's
+  light/dark theme setting. The progress ring and a handful of accent
+  surfaces (phase badge, target/weight stat boxes, NEXT card, controls) use
+  these fixed tokens rather than the theme-aware `--color-bg-surface` etc.,
+  so they stay legible regardless of which theme is active elsewhere in the
+  app — using the theme-aware tokens here was tried first and produced
+  invisible dark-on-dark controls under the dark theme.
+- **Fully-saturated mode** — an opt-in toggle (the header's square icon)
+  that floods the entire screen with the current phase colour instead of
+  showing it only on the ring, with white/translucent controls. Both modes
+  read the same phase colour tokens (`--color-timer-work`/`-rest`/`-intro`/
+  `-complete`); saturated mode is purely a presentation switch, not a
+  different state in `useTimerEngine`.
+
+The NEXT-up card is colour-coded to whatever phase is *coming next*, not
+the current phase — green when the next segment is an exercise, blue when
+it's a recover — per user-testing markup. It also sources its
+target/weight stat boxes from the *upcoming* activity during RECOVER
+(what you're about to do), and the current activity during ACTIVE (what
+you're doing now) — `nextActivityPreview()` in `TimerRun.jsx` resolves
+both the preview and the correct stat source together so they can't drift
+apart.
+
 ## Navigation
 
 `useNavStack.js` replaces a plain `useState` view-swap with real History
@@ -173,6 +213,15 @@ screen independently deciding where "back" leads. That's what makes
 `Library → Workout → Edit → back` correctly land on Workout (not Library)
 without any screen needing to know its own navigation history — the
 browser's own back stack is the single source of truth.
+
+`AppTabBar.jsx` (Library/History screens, plus ActiveWorkout while a
+workout is running) sits on top of this rather than replacing it — tapping
+a tab calls the same `navigate()` used everywhere else, so it still pushes
+a normal history entry. The middle "Running" tab only appears while
+`engine.status !== 'idle'`; there's no cross-screen session persistence
+today (navigating away from ActiveWorkout unmounts its `useTimerEngine`
+instance), so the tab reflects that honestly rather than implying you can
+navigate away from a live workout and back into it.
 
 ## State management
 

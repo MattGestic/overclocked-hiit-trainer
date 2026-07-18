@@ -130,6 +130,17 @@
   --color-timer-warning:  #f97316;
   --color-timer-complete: #22c55e;
 
+  /* TimerRun's default "light card" background (refined-UI p.3/4) is fixed
+     cream/navy regardless of the app's light/dark theme setting — only the
+     opt-in "fully saturated" mode floods the screen with the phase color
+     instead. Declared once here (not repeated in [data-theme="dark"]) so it
+     stays constant in both themes. */
+  --color-timer-paper:         #f5f0df;
+  --color-timer-paper-text:    #111827;
+  --color-timer-paper-surface: #ffffff;
+  --color-timer-paper-track:   rgba(17, 24, 39, 0.12);
+  --color-timer-paper-border:  rgba(17, 24, 39, 0.14);
+
   /* ── Charts ──────────────────────────────────────────────── */
   --color-chart-line-primary:   #84cc16;
   --color-chart-line-secondary: #2563eb;
