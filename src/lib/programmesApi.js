@@ -84,10 +84,19 @@ export async function getProgramme(id) {
 // transaction. A failure between steps can leave stale blocks; the fast
 // follow is a single Postgres RPC that does this atomically.
 export async function saveProgramme(programme) {
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  if (userError) throw userError
+  if (!user) throw new Error('Not signed in')
+
   const { data: savedProgramme, error: programmeError } = await supabase
     .from('programmes')
     .upsert({
-      id: programme.id,
+      // Only include `id` for an existing programme — a new one has
+      // `id: null` (see emptyProgramme() in ProgrammeEditor.jsx), and
+      // sending that literally inserts NULL into the primary key instead
+      // of letting its DEFAULT gen_random_uuid() generate one.
+      ...(programme.id ? { id: programme.id } : {}),
+      user_id: user.id,
       name: programme.name,
       type: programme.type,
       intro_enabled: programme.introEnabled,
