@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabaseClient'
+import { useNavStack } from './hooks/useNavStack'
 import Login from './components/Login'
 import Library from './components/Library'
 import ProgrammeEditor from './components/ProgrammeEditor'
@@ -9,7 +10,7 @@ import History from './components/History'
 
 export default function App() {
   const [session, setSession] = useState(undefined) // undefined = still checking
-  const [view, setView] = useState({ screen: 'library' })
+  const { view, navigate, goBack } = useNavStack({ screen: 'library' })
 
   useEffect(() => {
     if (!supabase) return
@@ -42,11 +43,11 @@ export default function App() {
   if (view.screen === 'library') {
     return (
       <Library
-        onNew={() => setView({ screen: 'editor', programmeId: null })}
-        onEdit={(id) => setView({ screen: 'editor', programmeId: id })}
-        onRun={(id) => setView({ screen: 'workout', programmeId: id })}
-        onSettings={() => setView({ screen: 'settings' })}
-        onHistory={() => setView({ screen: 'history' })}
+        onNew={() => navigate({ screen: 'editor', programmeId: null })}
+        onEdit={(id) => navigate({ screen: 'editor', programmeId: id })}
+        onRun={(id) => navigate({ screen: 'workout', programmeId: id })}
+        onSettings={() => navigate({ screen: 'settings' })}
+        onHistory={() => navigate({ screen: 'history' })}
       />
     )
   }
@@ -55,8 +56,8 @@ export default function App() {
     return (
       <ProgrammeEditor
         programmeId={view.programmeId}
-        onSaved={() => setView({ screen: 'library' })}
-        onCancel={() => setView({ screen: 'library' })}
+        onSaved={goBack}
+        onCancel={goBack}
       />
     )
   }
@@ -65,18 +66,18 @@ export default function App() {
     return (
       <ActiveWorkout
         programmeId={view.programmeId}
-        onBack={() => setView({ screen: 'library' })}
-        onEdit={(id) => setView({ screen: 'editor', programmeId: id })}
+        onBack={goBack}
+        onEdit={(id) => navigate({ screen: 'editor', programmeId: id })}
       />
     )
   }
 
   if (view.screen === 'settings') {
-    return <Settings session={session} onBack={() => setView({ screen: 'library' })} />
+    return <Settings session={session} onBack={goBack} />
   }
 
   if (view.screen === 'history') {
-    return <History onBack={() => setView({ screen: 'library' })} />
+    return <History onBack={goBack} />
   }
 
   return null

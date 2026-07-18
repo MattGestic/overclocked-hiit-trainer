@@ -3,6 +3,19 @@ import { DayDots, useToast } from '../shared-ui'
 import { timeAgo } from '../shared-ui/utils/format'
 import { listProgrammes, deleteProgramme } from '../lib/programmesApi'
 import { listSessionCountsSince } from '../lib/sessionLogsApi'
+import { useLayout } from '../hooks/useLayout'
+
+function libraryMaxWidth(bp) {
+  if (bp === 'xl') return 1200
+  if (bp === 'lg') return 900
+  return 'var(--shell-max-mobile)'
+}
+
+function libraryGridColumns(bp) {
+  if (bp === 'xl') return 3
+  if (bp === 'lg') return 2
+  return 1
+}
 
 function sevenDaysAgo() {
   const d = new Date()
@@ -24,6 +37,7 @@ export default function Library({ onNew, onEdit, onRun, onSettings, onHistory })
   const [dailyReps, setDailyReps] = useState({})
   const [reloadToken, setReloadToken] = useState(0)
   const toast = useToast()
+  const layout = useLayout()
 
   function retry() {
     setProgrammes(null)
@@ -53,7 +67,7 @@ export default function Library({ onNew, onEdit, onRun, onSettings, onHistory })
   }
 
   return (
-    <div className="mx-auto w-full pb-24" style={{ maxWidth: 'var(--shell-max-mobile)', padding: '0 var(--shell-px-mobile) 96px' }}>
+    <div className="mx-auto w-full pb-24" style={{ maxWidth: libraryMaxWidth(layout.bp), padding: '0 var(--shell-px-mobile) 96px', transition: 'max-width 0.2s' }}>
       <header className="flex items-center justify-between" style={{ padding: '24px 0 16px' }}>
         <h1 style={{
           fontFamily: 'var(--font-display)', fontWeight: 'var(--weight-bold)', fontSize: 'var(--text-2xl)',
@@ -147,7 +161,7 @@ export default function Library({ onNew, onEdit, onRun, onSettings, onHistory })
       )}
 
       {programmes && programmes.length > 0 && (
-        <div className="flex flex-col" style={{ gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${libraryGridColumns(layout.bp)}, 1fr)`, gap: 12 }}>
           {programmes.map((p) => (
             <div
               key={p.id}

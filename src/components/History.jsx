@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { timeAgo } from '../shared-ui/utils/format'
 import { listAllSessions } from '../lib/sessionLogsApi'
+import { useLayout } from '../hooks/useLayout'
 
 const WEEKDAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
@@ -55,6 +56,7 @@ export default function History({ onBack }) {
   const [sessions, setSessions] = useState(null)
   const [error, setError] = useState(null)
   const [monthOffset, setMonthOffset] = useState(0)
+  const layout = useLayout()
 
   useEffect(() => {
     listAllSessions().then(setSessions).catch((err) => setError(err.message))
@@ -64,8 +66,60 @@ export default function History({ onBack }) {
   const { cells, label } = useMemo(() => buildMonthGrid(monthOffset), [monthOffset])
   const today = new Date().toDateString()
 
+  const calendar = stats && (
+    <div style={s.calendarCard}>
+      <div style={s.calendarHeader}>
+        <button onClick={() => setMonthOffset((m) => m - 1)} style={s.navBtn} aria-label="Previous month">&lsaquo;</button>
+        <span style={s.monthLabel}>{label}</span>
+        <button onClick={() => setMonthOffset((m) => m + 1)} style={s.navBtn} aria-label="Next month">&rsaquo;</button>
+      </div>
+      <div style={s.weekdayRow}>
+        {WEEKDAYS.map((w, i) => <span key={i} style={s.weekday}>{w}</span>)}
+      </div>
+      <div style={s.grid}>
+        {cells.map((date, i) => {
+          if (!date) return <span key={i} />
+          const has = stats.dateSet.has(date.toDateString())
+          const isToday = date.toDateString() === today
+          return (
+            <span
+              key={i}
+              style={{
+                ...s.dayCell,
+                ...(has ? s.dayCellActive : {}),
+                ...(isToday ? s.dayCellToday : {}),
+              }}
+            >
+              {date.getDate()}
+            </span>
+          )
+        })}
+      </div>
+    </div>
+  )
+
+  const recentSessions = stats && (
+    <div>
+      <div style={s.recentLabel}>Recent Sessions</div>
+      {sessions.length === 0 && <p style={{ color: 'var(--color-text-muted)' }}>No sessions logged yet.</p>}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {sessions.slice(0, 15).map((sess) => (
+          <div key={sess.id} style={s.sessionRow}>
+            <div>
+              <div style={s.sessionName}>{sess.programme_name}</div>
+              <div style={s.sessionMeta}>{timeAgo(sess.started_at)}</div>
+            </div>
+            <span style={sess.status === 'completed' ? s.badgeDone : s.badgeStopped}>
+              {sess.status === 'completed' ? 'Done' : 'Stopped'}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
   return (
-    <div style={s.page}>
+    <div style={{ ...s.page, maxWidth: layout.wide ? 900 : 'var(--shell-max-mobile)' }}>
       <div style={s.header}>
         <button onClick={onBack} style={s.backBtn} aria-label="Back">&larr;</button>
         <h1 style={s.title}>History</h1>
@@ -91,51 +145,17 @@ export default function History({ onBack }) {
             </div>
           </div>
 
-          <div style={s.calendarCard}>
-            <div style={s.calendarHeader}>
-              <button onClick={() => setMonthOffset((m) => m - 1)} style={s.navBtn} aria-label="Previous month">&lsaquo;</button>
-              <span style={s.monthLabel}>{label}</span>
-              <button onClick={() => setMonthOffset((m) => m + 1)} style={s.navBtn} aria-label="Next month">&rsaquo;</button>
+          {layout.wide ? (
+            <div style={s.sideBySide}>
+              <div style={{ flex: 1 }}>{calendar}</div>
+              <div style={{ flex: 1 }}>{recentSessions}</div>
             </div>
-            <div style={s.weekdayRow}>
-              {WEEKDAYS.map((w, i) => <span key={i} style={s.weekday}>{w}</span>)}
-            </div>
-            <div style={s.grid}>
-              {cells.map((date, i) => {
-                if (!date) return <span key={i} />
-                const has = stats.dateSet.has(date.toDateString())
-                const isToday = date.toDateString() === today
-                return (
-                  <span
-                    key={i}
-                    style={{
-                      ...s.dayCell,
-                      ...(has ? s.dayCellActive : {}),
-                      ...(isToday ? s.dayCellToday : {}),
-                    }}
-                  >
-                    {date.getDate()}
-                  </span>
-                )
-              })}
-            </div>
-          </div>
-
-          <div style={s.recentLabel}>Recent Sessions</div>
-          {sessions.length === 0 && <p style={{ color: 'var(--color-text-muted)' }}>No sessions logged yet.</p>}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {sessions.slice(0, 15).map((sess) => (
-              <div key={sess.id} style={s.sessionRow}>
-                <div>
-                  <div style={s.sessionName}>{sess.programme_name}</div>
-                  <div style={s.sessionMeta}>{timeAgo(sess.started_at)}</div>
-                </div>
-                <span style={sess.status === 'completed' ? s.badgeDone : s.badgeStopped}>
-                  {sess.status === 'completed' ? 'Done' : 'Stopped'}
-                </span>
-              </div>
-            ))}
-          </div>
+          ) : (
+            <>
+              {calendar}
+              {recentSessions}
+            </>
+          )}
         </>
       )}
     </div>
@@ -151,6 +171,7 @@ const s = {
   },
   title: { margin: 0, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-xl)', color: 'var(--color-text-primary)' },
   statsRow: { display: 'flex', gap: 12, marginBottom: 20 },
+  sideBySide: { display: 'flex', gap: 24, alignItems: 'flex-start' },
   statCard: {
     flex: 1, background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 'var(--card-radius)',
     padding: 'var(--card-padding-sm)', textAlign: 'center',

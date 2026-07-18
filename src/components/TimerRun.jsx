@@ -1,4 +1,6 @@
 import { nextIndices } from '../hooks/useTimerEngine'
+import { useLayout } from '../hooks/useLayout'
+import BlockList from './BlockList'
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60)
@@ -44,12 +46,14 @@ function nextActivityPreview(engine, programme) {
 }
 
 export default function TimerRun({ engine, programme, onCollapse, onStop }) {
+  const layout = useLayout()
   const block = programme.blocks[engine.blockIndex]
   const activity = block?.activities[engine.activityIndex]
   const total = currentPhaseDuration(engine, programme)
   const elapsedPct = total > 0 ? Math.min(100, ((total - engine.timeLeft) / total) * 100) : 0
   const color = phaseColor(engine.phase)
   const next = engine.status !== 'complete' && engine.status !== 'idle' ? nextActivityPreview(engine, programme) : null
+  const split = layout.landscape && (layout.tablet || layout.wide)
 
   const phaseName = engine.phase === 'active' ? 'ACTIVE'
     : engine.phase === 'recover' ? 'REST'
@@ -74,27 +78,35 @@ export default function TimerRun({ engine, programme, onCollapse, onStop }) {
         <span style={{ width: 40 }} />
       </div>
 
-      <div style={s.center}>
-        <div style={s.phaseBadge}>{engine.status === 'paused' ? 'PAUSED' : phaseName}</div>
-        <div style={s.ringWrap}>
-          <svg width={300} height={300} viewBox="0 0 300 300">
-            <circle cx={150} cy={150} r={radius} fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth={12} />
-            <circle
-              cx={150} cy={150} r={radius} fill="none" stroke="var(--color-bg-app)" strokeWidth={12}
-              strokeDasharray={circumference} strokeDashoffset={circumference * (1 - elapsedPct / 100)}
-              strokeLinecap="round" transform="rotate(-90 150 150)" style={{ transition: 'stroke-dashoffset 1s linear' }}
-            />
-          </svg>
-          <div style={s.ringCenter}>
-            <div style={s.exerciseName}>{displayName}</div>
-            <div style={s.timeText}>{formatTime(engine.timeLeft)}</div>
+      <div style={split ? s.splitBody : undefined}>
+        <div style={s.center}>
+          <div style={s.phaseBadge}>{engine.status === 'paused' ? 'PAUSED' : phaseName}</div>
+          <div style={s.ringWrap}>
+            <svg width={300} height={300} viewBox="0 0 300 300">
+              <circle cx={150} cy={150} r={radius} fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth={12} />
+              <circle
+                cx={150} cy={150} r={radius} fill="none" stroke="var(--color-bg-app)" strokeWidth={12}
+                strokeDasharray={circumference} strokeDashoffset={circumference * (1 - elapsedPct / 100)}
+                strokeLinecap="round" transform="rotate(-90 150 150)" style={{ transition: 'stroke-dashoffset 1s linear' }}
+              />
+            </svg>
+            <div style={s.ringCenter}>
+              <div style={s.exerciseName}>{displayName}</div>
+              <div style={s.timeText}>{formatTime(engine.timeLeft)}</div>
+            </div>
           </div>
+
+          {next && (
+            <div style={s.nextRow}>
+              <span style={s.nextLabel}>NEXT</span>
+              <span>{next.name} &middot; {next.seconds}s</span>
+            </div>
+          )}
         </div>
 
-        {next && (
-          <div style={s.nextRow}>
-            <span style={s.nextLabel}>NEXT</span>
-            <span>{next.name} &middot; {next.seconds}s</span>
+        {split && (
+          <div style={s.splitPanel}>
+            <BlockList programme={programme} engine={engine} />
           </div>
         )}
       </div>
@@ -120,6 +132,8 @@ const s = {
   blockRound: {
     fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, letterSpacing: '0.12em', color: 'inherit', opacity: 0.85,
   },
+  splitBody: { flex: 1, display: 'flex', flexDirection: 'row', gap: 24, alignItems: 'stretch', minHeight: 0 },
+  splitPanel: { flex: 1, overflowY: 'auto', paddingTop: 24, maxWidth: 480 },
   center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 },
   phaseBadge: {
     fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, letterSpacing: '0.16em',
