@@ -141,6 +141,18 @@
   --color-timer-paper-track:   rgba(17, 24, 39, 0.12);
   --color-timer-paper-border:  rgba(17, 24, 39, 0.14);
 
+  /* White-on-dark overlay scale — the recurring "translucent white control
+     on a dark or fully-saturated-colour card" pattern (LiveBar's icon
+     buttons, TimerRun's saturated mode). One numbered scale referenced
+     everywhere instead of ad-hoc rgba(255,255,255,N) literals duplicated
+     per component. */
+  --overlay-on-dark-1: rgba(255, 255, 255, 0.08);
+  --overlay-on-dark-2: rgba(255, 255, 255, 0.12);
+  --overlay-on-dark-3: rgba(255, 255, 255, 0.16);
+  --overlay-on-dark-4: rgba(255, 255, 255, 0.20);
+  --overlay-on-dark-5: rgba(255, 255, 255, 0.30);
+  --overlay-on-dark-6: rgba(255, 255, 255, 0.40);
+
   /* ── Charts ──────────────────────────────────────────────── */
   --color-chart-line-primary:   #84cc16;
   --color-chart-line-secondary: #2563eb;
@@ -176,6 +188,15 @@
   --font-display: "Oswald", "Arial Narrow", "Helvetica Neue", sans-serif;
   --font-body:    "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono:    "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  /* The four selectable display-font options (Settings → Display Font).
+     Named individually so the Settings picker can preview each one without
+     switching [data-font] first, then reference the same values --font-
+     display resolves to below. */
+  --font-display-oswald:  "Oswald", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-display-barlow:  "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-display-bebas:   "Bebas Neue", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-display-anton:   "Anton", "Arial Narrow", "Helvetica Neue", sans-serif;
 
   --text-xs:   0.75rem;    /* 12px */
   --text-sm:   0.875rem;   /* 14px */
@@ -358,8 +379,9 @@
 
 /* ==========================================================================
    DENSITY — orthogonal to theme, applied via [data-density] on <html>.
-   Comfortable (the default) uses the base --space-* scale defined above;
-   compact scales it down ~25% for users who want more on screen at once.
+   Regular (the default, no attribute) uses the base --space-* scale defined
+   above; compact scales it down ~25%, comfy scales it up ~20%, for users
+   who want less/more on screen at once.
    ========================================================================== */
 
 [data-density="compact"] {
@@ -375,6 +397,61 @@
   --space-16: 3rem;
   --space-20: 3.75rem;
   --space-24: 4.5rem;
+}
+
+[data-density="comfy"] {
+  --space-1:  0.3rem;
+  --space-2:  0.6rem;
+  --space-3:  0.9rem;
+  --space-4:  1.2rem;
+  --space-5:  1.5rem;
+  --space-6:  1.8rem;
+  --space-8:  2.4rem;
+  --space-10: 3rem;
+  --space-12: 3.6rem;
+  --space-16: 4.8rem;
+  --space-20: 6rem;
+  --space-24: 7.2rem;
+}
+
+
+/* ==========================================================================
+   DISPLAY FONT — Settings → Display Font, applied via [data-font] on <html>.
+   No attribute (or [data-font="oswald"]) keeps the default set on
+   --font-display above; the other three swap it for the whole app.
+   ========================================================================== */
+
+[data-font="barlow"]  { --font-display: var(--font-display-barlow); }
+[data-font="bebas"]   { --font-display: var(--font-display-bebas); }
+[data-font="anton"]   { --font-display: var(--font-display-anton); }
+
+
+/* ==========================================================================
+   COLOUR PALETTE — Settings → Colour Palette, applied via [data-palette] on
+   <html>, only meaningful alongside the light theme (dark theme is a
+   separate axis and unaffected). "Paper" is the light theme's existing
+   default values above, so it needs no override block of its own — only
+   Cream (warmer/lighter) and Steel (cooler grey) redefine surfaces/borders.
+   ========================================================================== */
+
+[data-theme="light"][data-palette="cream"] {
+  --color-bg-app:              #faf3e3;
+  --color-bg-app-subtle:       #fdf8ee;
+  --color-bg-surface:          #fffdf7;
+  --color-bg-surface-subtle:   #fdf6e9;
+  --color-bg-surface-elevated: #fffdf7;
+  --color-border-subtle:       #ede2c8;
+  --color-border-default:      #e0d1ac;
+}
+
+[data-theme="light"][data-palette="steel"] {
+  --color-bg-app:              #eef1f4;
+  --color-bg-app-subtle:       #f5f7f9;
+  --color-bg-surface:          #ffffff;
+  --color-bg-surface-subtle:   #f7f9fa;
+  --color-bg-surface-elevated: #ffffff;
+  --color-border-subtle:       #dde3e8;
+  --color-border-default:      #c9d2da;
 }
 
 

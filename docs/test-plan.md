@@ -64,12 +64,14 @@ Carried forward from prior prototype iterations — each was a real bug once:
 | BUG-02 | Back button exits the browser/app | No History API integration | `useNavStack` — verify browser back navigates screens, not out of the app, after any navigation-related change |
 | BUG-03 | All library cards opened the same programme | Single shared programme reference instead of a map keyed by ID | `Library`/`ActiveWorkout`/`ProgrammeEditor` always resolve a programme by the `id` passed in, never a shared "current" reference — verify with 2+ programmes, not just 1 |
 | BUG-04 | TimerRun's header icons and NEXT/stat cards were invisible (dark-on-dark) under the dark theme | Used theme-aware tokens (`--color-bg-surface`, `--color-border-default`) for surfaces that are supposed to stay a fixed light "paper" card regardless of the active theme | TimerRun's default-mode accent surfaces must use the fixed `--color-timer-paper*` tokens, never theme-aware ones — verify by screenshotting TimerRun under both themes, not just one |
+| BUG-05 | TimerRun's square header icon toggled fully-saturated colour mode instead of the split/checklist view; the lightning bolt did nothing | Built against refined-UI p.3-5 only, which don't disambiguate the two icons — p.6 ("TIMER · SPLIT SCREEN") shows the square icon driving a different, still-paper-background view | Icon-to-function mapping in `TimerRun.jsx`'s header must match p.6, not just an inference from p.3-5: lightning = saturated toggle, square = split/checklist toggle |
 
 Bugs of the same *character* (small, silent-failure mistakes) were found
 and fixed during this build via real-browser visual testing rather than
 lint/build alone — see individual commit messages for `LiveBar` (checked
 `activity?.name` before checking `engine.phase`, so INTRO showed the wrong
 exercise name), `Settings` (`s.primaryBtn` referenced but never defined,
-silently rendering as an unstyled button), and BUG-04 above. Worth
+silently rendering as an unstyled button), and BUG-04/BUG-05 above. Worth
 remembering that this class of bug doesn't trip lint, type checking, or
-the build — only actually looking at the rendered result catches it.
+the build — only actually looking at the rendered result (and, for BUG-05,
+having the full reference set) catches it.

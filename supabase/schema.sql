@@ -68,14 +68,16 @@ END $$;
 -- in scope yet, so days without a session render as neutral, not missed.
 CREATE TABLE IF NOT EXISTS session_logs (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id       UUID NOT NULL REFERENCES auth.users ON DELETE CASCADE,
-  programme_id  UUID REFERENCES programmes(id) ON DELETE SET NULL,
-  programme_name TEXT NOT NULL,                    -- snapshot at run time, survives programme deletion
-  started_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  ended_at      TIMESTAMPTZ,
-  status        TEXT NOT NULL DEFAULT 'completed'
-                  CHECK (status IN ('completed', 'stopped'))
+  user_id       UUID NOT NULL REFERENCES auth.users ON DELETE CASCADE
 );
+
+ALTER TABLE session_logs ADD COLUMN IF NOT EXISTS programme_id UUID REFERENCES programmes(id) ON DELETE SET NULL;
+ALTER TABLE session_logs ADD COLUMN IF NOT EXISTS programme_name TEXT NOT NULL DEFAULT 'Programme'; -- snapshot at run time, survives programme deletion
+ALTER TABLE session_logs ADD COLUMN IF NOT EXISTS block_count INT; -- snapshot too, same reason; nullable since older rows predate this column
+ALTER TABLE session_logs ADD COLUMN IF NOT EXISTS started_at TIMESTAMPTZ NOT NULL DEFAULT now();
+ALTER TABLE session_logs ADD COLUMN IF NOT EXISTS ended_at TIMESTAMPTZ;
+ALTER TABLE session_logs ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'completed'
+  CHECK (status IN ('completed', 'stopped'));
 
 -- ── RLS ─────────────────────────────────────────────────────────────────
 ALTER TABLE programmes   ENABLE ROW LEVEL SECURITY;

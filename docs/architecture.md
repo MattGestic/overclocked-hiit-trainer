@@ -169,16 +169,20 @@ Tailwind 4 utility classes for structural layout (flex/grid/spacing);
 inline `style` objects reading CSS custom properties for anything
 token-driven (colour, font, radius, spacing scale) — matching the existing
 pattern in the vendored `shared-ui` components rather than introducing a
-third convention. No hardcoded hex values in component files; see
-`src/shared-ui/theme/tokens.css` for the full token set (colours, type
-scale, spacing, radii, shadows, motion — dark and light themes) plus the
-`[data-density="compact"]` block that gives the Settings density toggle
-real effect.
+third convention. No hardcoded hex values or ad-hoc `rgba()` literals in
+component files; see `src/shared-ui/theme/tokens.css` for the full token
+set (colours, type scale, spacing, radii, shadows, motion — dark and
+light themes, plus the palette/font/density variants — see "Theming
+system" below).
 
 ## Timer visual modes
 
-`TimerRun.jsx` has two independent visual states, both from the refined-UI
-reference:
+`TimerRun.jsx` has three header-toggleable states, all from the refined-UI
+reference (p.3-6). Getting the icon-to-function mapping right took two
+passes — p.3-5 alone read as if the square icon were the saturated-mode
+toggle; p.6 ("TIMER · SPLIT SCREEN") showed the square icon driving a
+*different* view entirely, on an unchanged paper background, which is what
+it actually is:
 
 - **Default ("paper") mode** — a fixed cream/navy card look
   (`--color-timer-paper*` tokens), deliberately *not* tied to the app's
@@ -188,12 +192,22 @@ reference:
   so they stay legible regardless of which theme is active elsewhere in the
   app — using the theme-aware tokens here was tried first and produced
   invisible dark-on-dark controls under the dark theme.
-- **Fully-saturated mode** — an opt-in toggle (the header's square icon)
-  that floods the entire screen with the current phase colour instead of
-  showing it only on the ring, with white/translucent controls. Both modes
-  read the same phase colour tokens (`--color-timer-work`/`-rest`/`-intro`/
-  `-complete`); saturated mode is purely a presentation switch, not a
-  different state in `useTimerEngine`.
+- **Fully-saturated mode** — toggled by the header's **lightning-bolt**
+  icon. Floods the entire screen with the current phase colour instead of
+  showing it only on the ring, with white/translucent controls. Both this
+  and default mode read the same phase colour tokens
+  (`--color-timer-work`/`-rest`/`-intro`/`-complete`); it's purely a
+  presentation switch, not a different state in `useTimerEngine`.
+- **Split/checklist view** — toggled by the header's **square** icon (also
+  entered automatically in landscape on a tablet/wide viewport, via
+  `useLayout`). Swaps the large centred ring for a compact 120px ring next
+  to the phase badge and NEXT card, followed by a "CURRENT BLOCK" header
+  and a `CurrentBlockChecklist` — a per-exercise table with a manual,
+  session-only (not persisted) checkmark per row, current activity marked
+  with the same green dot BlockList uses. Only the *current* block is
+  shown here, not all of them (unlike `BlockList`, which is still what
+  ActiveWorkout's overview uses) — that's the actual reference layout, and
+  why this isn't just `BlockList` reused with a filter.
 
 The NEXT-up card is colour-coded to whatever phase is *coming next*, not
 the current phase — green when the next segment is an exercise, blue when
@@ -203,6 +217,34 @@ target/weight stat boxes from the *upcoming* activity during RECOVER
 you're doing now) — `nextActivityPreview()` in `TimerRun.jsx` resolves
 both the preview and the correct stat source together so they can't drift
 apart.
+
+## Theming system (palette / font / density)
+
+Extends `shared-ui`'s existing dark/light `[data-theme]` + `[data-density]`
+pattern with two more independently-toggleable axes, all driven the same
+way — `useTheme.jsx` sets a `data-*` attribute on `<html>`, and
+`tokens.css` has a block of custom-property overrides per value, so a
+component never branches on the setting directly:
+
+- **`[data-palette]`** (Cream / Paper / Steel) — only meaningful alongside
+  the light theme; Paper is the light theme's own existing default values,
+  so only `[data-theme="light"][data-palette="cream"]` and `...="steel"`
+  need override blocks.
+- **`[data-font]`** (Barlow Condensed / Bebas Neue / Oswald / Anton) —
+  Oswald is `--font-display`'s existing default, the other three override
+  it. All four ship via the same Google Fonts `@import` in `index.css`
+  that already loaded Oswald/Inter.
+- **`[data-density]`** — extended from a boolean compact/comfortable toggle
+  to three values (Compact / Regular / Comfy); Regular is the base
+  `--space-*` scale, so it needs no override block of its own, matching
+  the Paper/Oswald "default needs no block" pattern above.
+
+A repeated "translucent white control on a dark or saturated-colour card"
+pattern (LiveBar's icon buttons, TimerRun's saturated mode) was previously
+duplicated as ad-hoc `rgba(255,255,255,N)` literals per component; it's
+now a `--overlay-on-dark-1` through `-6` numbered scale in `tokens.css`,
+referenced everywhere that pattern shows up instead of re-guessing the
+opacity per spot.
 
 ## Navigation
 
