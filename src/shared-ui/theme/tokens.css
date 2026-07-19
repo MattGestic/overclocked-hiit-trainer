@@ -187,7 +187,7 @@
   /* ── Typography ──────────────────────────────────────────── */
   --font-display: "Oswald", "Arial Narrow", "Helvetica Neue", sans-serif;
   --font-body:    "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono:    "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-mono:    "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 
   /* The four selectable display-font options (Settings → Display Font).
      Named individually so the Settings picker can preview each one without

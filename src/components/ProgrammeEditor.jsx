@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useToast } from '../shared-ui'
 import { getProgramme, saveProgramme } from '../lib/programmesApi'
+import QuickSelectModal from './QuickSelect/QuickSelectModal'
 
 const PROGRAMME_TYPES = ['HIIT', 'TABATA', 'CIRCUIT', 'AMRAP', 'EMOM']
 
@@ -36,11 +37,12 @@ function validate(programme) {
   return errors
 }
 
-export default function ProgrammeEditor({ programmeId, onSaved, onCancel }) {
+export default function ProgrammeEditor({ programmeId, onSaved, onCancel, autoOpenQuickCreate = false }) {
   const [programme, setProgramme] = useState(() => (programmeId ? null : emptyProgramme())) // null while loading in edit mode
   const [loadError, setLoadError] = useState(null)
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)
+  const [quickCreateOpen, setQuickCreateOpen] = useState(autoOpenQuickCreate)
   const toast = useToast()
 
   useEffect(() => {
@@ -94,6 +96,15 @@ export default function ProgrammeEditor({ programmeId, onSaved, onCancel }) {
         b.id === blockId ? { ...b, activities: b.activities.filter((a) => a.id !== activityId) } : b
       ),
     }))
+  }
+
+  // Quick Select's own callback contract: a plain array of new blocks to
+  // append to the draft. Never writes to Supabase directly — the user
+  // still reviews and saves via the existing Save button below.
+  function handleQuickCreateGenerate(newBlocks) {
+    setProgramme((p) => ({ ...p, blocks: [...p.blocks, ...newBlocks] }))
+    setQuickCreateOpen(false)
+    toast?.(`${newBlocks.length} block${newBlocks.length === 1 ? '' : 's'} added`, 'success')
   }
 
   async function handleSave() {
@@ -169,6 +180,17 @@ export default function ProgrammeEditor({ programmeId, onSaved, onCancel }) {
         )}
       </div>
       {errors.introSeconds && <span style={s.error}>{errors.introSeconds}</span>}
+
+      <button onClick={() => setQuickCreateOpen(true)} style={s.quickCreateBtn}>
+        Quick Create
+      </button>
+
+      <QuickSelectModal
+        open={quickCreateOpen}
+        onClose={() => setQuickCreateOpen(false)}
+        programme={programme}
+        onGenerate={handleQuickCreateGenerate}
+      />
 
       <div style={{ margin: '24px 0 12px', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-xs)', letterSpacing: 'var(--tracking-label)', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
         Blocks
@@ -266,6 +288,12 @@ const s = {
     height: 'var(--input-h-md)', padding: '0 var(--space-3)', background: 'var(--color-input-bg)',
     border: '1px solid var(--color-input-border)', borderRadius: 'var(--radius-input)', color: 'var(--color-input-text)',
     fontSize: 'var(--text-sm)', fontFamily: 'var(--font-body)', width: '100%',
+  },
+  quickCreateBtn: {
+    height: 'var(--btn-h-md)', padding: '0 20px', background: 'transparent', color: 'var(--color-action-primary)',
+    border: '1px solid var(--color-action-primary)', borderRadius: 'var(--btn-radius)', cursor: 'pointer',
+    fontFamily: 'var(--btn-font)', fontWeight: 'var(--btn-weight)', letterSpacing: 'var(--btn-tracking)',
+    fontSize: 'var(--text-sm)', textTransform: 'uppercase', alignSelf: 'flex-start', marginBottom: 8,
   },
   numberField: { display: 'flex', flexDirection: 'column', gap: 4, minWidth: 90, flex: 1 },
   error: { color: 'var(--color-error-text)', fontSize: 'var(--text-xs)' },
