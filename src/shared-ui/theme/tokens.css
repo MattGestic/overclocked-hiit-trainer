@@ -19,13 +19,21 @@
   --color-brand-primary-hover:   #1f2937;
   --color-brand-primary-pressed: #030712;
 
-  --color-brand-lime:            #84cc16;  /* REP•STACK identity green */
-  --color-brand-lime-hover:      #65a30d;
-  --color-brand-lime-pressed:    #4d7c0f;
+  --color-brand-lime:            #5f9e6c;  /* OVER•CLOCK's ACTIVE green, per finalized timer screens (diverges from REP•STACK's lime) */
+  --color-brand-lime-hover:      #4f8a5b;
+  --color-brand-lime-pressed:    #3f6f49;
 
   --color-brand-orange:          #f97316;  /* streak / accent */
   --color-brand-orange-hover:    #ea580c;
   --color-brand-orange-pressed:  #c2410c;
+
+  --color-brand-indigo:          #5457c6;  /* OVER•CLOCK's RECOVER + primary-action blue-violet */
+  --color-brand-indigo-hover:    #4548ac;
+  --color-brand-indigo-pressed:  #383a8f;
+
+  --color-brand-amber:           #b9873a;  /* warm tan info-tile accent (reps/weight during recovery) */
+  --color-brand-amber-hover:     #a17330;
+  --color-brand-amber-pressed:   #87602a;
 
   /* ── Surfaces ────────────────────────────────────────────── */
   --color-bg-app:              #f5f0df;
@@ -467,13 +475,21 @@
   --color-brand-primary-hover:   #e5e7eb;
   --color-brand-primary-pressed: #d1d5db;
 
-  --color-brand-lime:            #a3e635;
-  --color-brand-lime-hover:      #84cc16;
-  --color-brand-lime-pressed:    #65a30d;
+  --color-brand-lime:            #7bc98a;
+  --color-brand-lime-hover:      #5f9e6c;
+  --color-brand-lime-pressed:    #4f8a5b;
 
   --color-brand-orange:          #fb923c;
   --color-brand-orange-hover:    #f97316;
   --color-brand-orange-pressed:  #ea580c;
+
+  --color-brand-indigo:          #7679e0;
+  --color-brand-indigo-hover:    #5457c6;
+  --color-brand-indigo-pressed:  #4548ac;
+
+  --color-brand-amber:           #d3a35f;
+  --color-brand-amber-hover:     #b9873a;
+  --color-brand-amber-pressed:   #a17330;
 
   /* ── Surfaces ────────────────────────────────────────────── */
   --color-bg-app:              #060b14;   /* REP•STACK deepest bg */
