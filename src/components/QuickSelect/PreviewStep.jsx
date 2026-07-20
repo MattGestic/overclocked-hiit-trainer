@@ -1,13 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import {
-  pinnedRow, primaryBtn, ghostBtn, backBtn, scrollArea, groupHeader, emptyState,
+  pinnedRow, primaryBtn, backBtn, scrollArea, groupHeader, emptyState,
 } from './styles'
 import { IconChevronLeft, IconDragHandle } from './icons'
 import { IconClose } from '../icons'
 
 export default function PreviewStep({ shortlist, onRemove, onUnassign, onMove, onBack, onGenerate }) {
-  const [confirmGate, setConfirmGate] = useState(false)
-
   const blocks = useMemo(() => {
     const nums = [...new Set(shortlist.filter((i) => i.block != null).map((i) => i.block))].sort((a, b) => a - b)
     return nums.map((n) => ({ number: n, items: shortlist.filter((i) => i.block === n) }))
@@ -15,10 +13,15 @@ export default function PreviewStep({ shortlist, onRemove, onUnassign, onMove, o
 
   const unassigned = useMemo(() => shortlist.filter((i) => i.block == null), [shortlist])
 
+  // Single tap generates. If anything's unassigned, that tap is gated by a
+  // native confirm() (same pattern already used for Stop-workout and
+  // Delete-programme) instead of a second tap on a relabelled button —
+  // clearer as a real confirmation step, not just "tap twice."
   function handlePrimaryClick() {
-    if (unassigned.length > 0 && !confirmGate) {
-      setConfirmGate(true)
-      return
+    if (unassigned.length > 0) {
+      const n = unassigned.length
+      const ok = window.confirm(`${n} exercise${n === 1 ? '' : 's'} unassigned — will be excluded. Generate anyway?`)
+      if (!ok) return
     }
     onGenerate()
   }
@@ -43,28 +46,17 @@ export default function PreviewStep({ shortlist, onRemove, onUnassign, onMove, o
 
   return (
     <>
-      <div style={{ display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-        <div style={pinnedRow}>
-          <button onClick={onBack} aria-label="Back" style={backBtn}><IconChevronLeft /></button>
-          <button onClick={handlePrimaryClick} disabled={nothingYet} style={{ ...primaryBtn, flex: 1, opacity: nothingYet ? 'var(--opacity-disabled)' : 1 }}>
-            {unassigned.length > 0 && confirmGate ? 'Continue Anyway — Generate' : 'Generate Programme'}
-          </button>
-        </div>
-
-        {confirmGate && unassigned.length > 0 && (
-          <div style={{ ...pinnedRow, background: 'var(--color-error-bg)', borderBottom: '1px solid var(--color-error-border)' }}>
-            <span style={{ color: 'var(--color-error-text)', fontSize: 'var(--text-xs)', fontWeight: 600 }}>
-              {unassigned.length} exercise{unassigned.length === 1 ? '' : 's'} unassigned — will be excluded.
-            </span>
-            <button onClick={() => setConfirmGate(false)} style={ghostBtn}>Cancel</button>
-          </div>
-        )}
+      <div style={pinnedRow}>
+        <button onClick={onBack} aria-label="Back" style={backBtn}><IconChevronLeft /></button>
+        <button onClick={handlePrimaryClick} disabled={nothingYet} style={{ ...primaryBtn, flex: 1, opacity: nothingYet ? 'var(--opacity-disabled)' : 1 }}>
+          Generate Programme
+        </button>
       </div>
 
       <div style={scrollArea}>
         {nothingYet && <div style={emptyState}>Nothing in the shortlist yet.</div>}
 
-        {!nothingYet && unassigned.length > 0 && !confirmGate && (
+        {!nothingYet && unassigned.length > 0 && (
           <div style={{
             border: '1px dashed var(--color-action-danger)', borderRadius: 'var(--radius-md)',
             padding: 'var(--space-3)', marginBottom: 16, color: 'var(--color-error-text)', fontSize: 'var(--text-xs)', fontWeight: 600,

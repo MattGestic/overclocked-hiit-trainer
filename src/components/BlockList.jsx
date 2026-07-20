@@ -14,26 +14,32 @@ function blockDurationMinutes(block) {
 // would be misleading.
 export default function BlockList({ programme, engine, onStart }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       {programme.blocks.map((block, blockIdx) => {
         const isCurrentBlock = engine.status !== 'idle' && engine.blockIndex === blockIdx
         const showStart = blockIdx === 0 && engine.status === 'idle' && onStart
         return (
-          <div key={block.id} style={s.block}>
+          <div key={block.id}>
+            <div style={s.metaRow}>
+              <div style={{ ...s.blockOrder, color: isCurrentBlock ? 'var(--color-timer-work)' : 'var(--color-text-primary)' }}>
+                {block.name || `BLOCK ${blockIdx + 1}`}
+              </div>
+              <span style={s.blockMeta}>{blockDurationMinutes(block)}</span>
+              <div style={{ flex: 1 }} />
+              {isCurrentBlock ? (
+                <span style={s.runningBadge}>{engine.status === 'paused' ? 'PAUSED' : 'RUNNING'}</span>
+              ) : showStart && (
+                <button onClick={onStart} style={s.startBtn}>
+                  <IconPlay size={11} /> Start
+                </button>
+              )}
+            </div>
             <div style={s.blockHeader}>
-              <div style={{ minWidth: 0 }}>
-                <div style={s.blockName}>{block.name || `Block ${blockIdx + 1}`}</div>
-                <div style={s.blockMeta}>{blockDurationMinutes(block)}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
+                {isCurrentBlock && <span style={s.liveDot} />}
+                <div style={s.blockName}>{(block.name || `Block ${blockIdx + 1}`).toUpperCase()}</div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                {isCurrentBlock && <span style={s.runningBadge}>{engine.status === 'paused' ? 'PAUSED' : 'RUNNING'}</span>}
-                {showStart && (
-                  <button onClick={onStart} style={s.startBtn}>
-                    <IconPlay size={12} /> Start
-                  </button>
-                )}
-                <span style={s.repeatChip}><IconRepeat size={12} /> &times;{block.repeat}</span>
-              </div>
+              <span style={s.repeatChip}><IconRepeat size={11} /> &times;{block.repeat}</span>
             </div>
             <table style={s.table}>
               <thead>
@@ -67,29 +73,43 @@ export default function BlockList({ programme, engine, onStart }) {
 }
 
 const s = {
-  block: { background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 'var(--card-radius)', padding: 'var(--card-padding-md)' },
-  blockHeader: {
-    display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, gap: 8,
-  },
-  blockName: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-sm)', color: 'var(--color-text-primary)' },
-  blockMeta: { fontWeight: 400, color: 'var(--color-text-muted)', fontSize: 'var(--text-xs)', marginTop: 2 },
+  metaRow: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, padding: '0 2px' },
+  blockOrder: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, letterSpacing: '0.16em', whiteSpace: 'nowrap' },
+  blockMeta: { fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--color-text-muted)', whiteSpace: 'nowrap' },
   runningBadge: {
-    fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 9, letterSpacing: '0.1em',
-    color: 'var(--color-timer-work)', border: '1px solid var(--color-timer-work)', borderRadius: 'var(--radius-chip)',
-    padding: '2px 8px',
+    fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10, letterSpacing: '0.18em',
+    color: 'var(--color-timer-work)', whiteSpace: 'nowrap',
   },
   startBtn: {
-    display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10,
-    letterSpacing: '0.08em', color: 'var(--color-timer-work)', border: '1px solid var(--color-timer-work)',
-    borderRadius: 'var(--radius-chip)', padding: '3px 10px', background: 'none', cursor: 'pointer',
+    display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10.5,
+    letterSpacing: '0.08em', color: 'var(--color-timer-work)', boxShadow: 'inset 0 0 0 1.5px var(--color-timer-work)',
+    borderRadius: 'var(--radius-chip)', padding: '6px 12px', background: 'none', border: 'none', cursor: 'pointer',
+  },
+  blockHeader: {
+    background: 'var(--color-bg-inverse)', color: 'var(--color-text-inverse)',
+    borderRadius: 'var(--card-radius) var(--card-radius) 0 0',
+    padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
+  },
+  liveDot: {
+    width: 8, height: 8, borderRadius: '50%', background: 'var(--color-timer-work)', flexShrink: 0,
+    boxShadow: '0 0 12px rgba(22,165,116,0.6)',
+  },
+  blockName: {
+    fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15, letterSpacing: '0.04em',
+    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
   },
   repeatChip: {
     display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 10,
-    color: 'var(--color-text-muted)', background: 'var(--color-action-secondary)', borderRadius: 'var(--radius-chip)', padding: '3px 8px',
+    color: 'var(--color-text-on-primary)', background: 'rgba(255,255,255,0.12)', borderRadius: 'var(--radius-chip)',
+    padding: '4px 8px', flexShrink: 0,
   },
-  table: { width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-sm)' },
-  th: { textAlign: 'left', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10, letterSpacing: '0.08em', color: 'var(--color-text-muted)', padding: '4px 0' },
-  td: { padding: '6px 0', color: 'var(--color-text-primary)', borderTop: '1px solid var(--card-border)' },
+  table: {
+    width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-sm)',
+    background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderTop: 'none',
+    borderRadius: '0 0 var(--card-radius) var(--card-radius)',
+  },
+  th: { textAlign: 'left', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10, letterSpacing: '0.08em', color: 'var(--color-text-muted)', padding: '10px 12px 6px' },
+  td: { padding: '8px 12px', color: 'var(--color-text-primary)', borderTop: '1px solid var(--card-border)' },
   trCurrent: { background: 'var(--color-success-bg)' },
   dot: { display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: 'var(--color-timer-work)', marginRight: 8 },
   position: { display: 'inline-block', fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--color-text-subtle)', marginRight: 8, width: 14 },

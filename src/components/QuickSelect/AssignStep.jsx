@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { pinnedRow, monoCounter, primaryBtn, backBtn, scrollArea } from './styles'
 import { IconChevronLeft } from './icons'
+import { IconUnassign } from '../icons'
 
 export default function AssignStep({ shortlist, onAssign, onBack, onNext }) {
   const maxBlock = useMemo(
@@ -65,13 +66,14 @@ export default function AssignStep({ shortlist, onAssign, onBack, onNext }) {
                 <button
                   onClick={() => onAssign(item.id, null)}
                   aria-label={`Unassign ${item.name}`}
+                  title="Unassign — clears the block, doesn't remove the exercise"
                   style={{
                     width: 22, height: 22, borderRadius: '50%', border: 'none', cursor: 'pointer',
                     background: 'var(--color-action-secondary)', color: 'var(--color-action-secondary-text)',
-                    fontSize: 12, lineHeight: 1,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
-                  &times;
+                  <IconUnassign size={12} />
                 </button>
               </span>
             )}

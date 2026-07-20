@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTheme, useToast } from '../shared-ui'
 import { supabase } from '../lib/supabaseClient'
+import { IconBack } from './icons'
 
 // Preview hex values mirror what src/shared-ui/theme/tokens.css actually
 // defines for each [data-theme="light"][data-palette] override — this is
@@ -30,6 +31,12 @@ export default function Settings({ session, onBack }) {
   const toast = useToast()
   const [name, setName] = useState(session?.user?.user_metadata?.display_name || '')
   const [saving, setSaving] = useState(false)
+  // Undefined (never touched) reads as "on" — matches today's behaviour
+  // for existing users, so this ships without silently changing anyone's
+  // current experience.
+  const [quickCreateDefault, setQuickCreateDefault] = useState(
+    session?.user?.user_metadata?.quickCreateDefault !== false
+  )
 
   async function handleSaveName() {
     setSaving(true)
@@ -44,10 +51,22 @@ export default function Settings({ session, onBack }) {
     }
   }
 
+  async function handleToggleQuickCreateDefault() {
+    const next = !quickCreateDefault
+    setQuickCreateDefault(next) // optimistic — a failed write below reverts it
+    try {
+      const { error } = await supabase.auth.updateUser({ data: { quickCreateDefault: next } })
+      if (error) throw error
+    } catch (err) {
+      setQuickCreateDefault(!next)
+      toast?.(err.message, 'error')
+    }
+  }
+
   return (
     <div style={s.page}>
       <div style={s.header}>
-        <button onClick={onBack} style={s.backBtn} aria-label="Back">&larr;</button>
+        <button onClick={onBack} style={s.backBtn} aria-label="Back"><IconBack size={16} /></button>
         <h1 style={s.title}>Settings</h1>
       </div>
 
@@ -122,7 +141,24 @@ export default function Settings({ session, onBack }) {
       </section>
 
       <div style={s.sectionLabel}>Defaults</div>
-      <section style={s.card}>
+      <section style={{ ...s.card, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={s.toggleRow}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <span style={s.fieldLabel}>Use Quick Create as default</span>
+            <p style={s.note}>
+              {quickCreateDefault
+                ? '"+ New" in the Library opens Quick Create directly.'
+                : '"+ New" opens the standard create-programme screen (which still has its own Quick Create button).'}
+            </p>
+          </div>
+          <button
+            onClick={handleToggleQuickCreateDefault}
+            role="switch" aria-checked={quickCreateDefault} aria-label="Use Quick Create as default"
+            style={{ ...s.switch, background: quickCreateDefault ? 'var(--color-action-positive)' : 'var(--color-action-secondary)' }}
+          >
+            <span style={{ ...s.switchKnob, left: quickCreateDefault ? 22 : 2 }} />
+          </button>
+        </div>
         <p style={s.note}>
           Default work/rest intervals are set per programme in the Programme Editor
           (open any programme and adjust its blocks).
@@ -155,8 +191,9 @@ const s = {
   page: { maxWidth: 'var(--shell-max-mobile)', margin: '0 auto', padding: '24px var(--shell-px-mobile) 96px' },
   header: { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 },
   backBtn: {
-    minWidth: 40, minHeight: 40, background: 'var(--color-action-secondary)', color: 'var(--color-action-secondary-text)',
-    border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontSize: 18,
+    minWidth: 40, minHeight: 40, background: 'var(--card-bg)', color: 'var(--color-text-primary)',
+    border: '1px solid var(--card-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   title: { margin: 0, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-xl)', color: 'var(--color-text-primary)' },
   sectionLabel: {
@@ -205,6 +242,15 @@ const s = {
   fontRowActive: { background: 'var(--color-bg-inverse)', color: 'var(--color-text-inverse)', borderColor: 'var(--color-bg-inverse)' },
   fontRowLabel: { fontFamily: 'var(--font-body)', fontSize: 'var(--text-xs)', opacity: 0.7 },
   note: { marginTop: 8, fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)' },
+  toggleRow: { display: 'flex', alignItems: 'flex-start', gap: 12 },
+  switch: {
+    width: 44, height: 24, borderRadius: 99, position: 'relative', flexShrink: 0,
+    border: 'none', cursor: 'pointer', transition: 'background 0.15s ease',
+  },
+  switchKnob: {
+    position: 'absolute', top: 2, width: 20, height: 20, borderRadius: '50%',
+    background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.25)', transition: 'left 0.15s ease',
+  },
   aboutRow: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0',
     borderBottom: '1px solid var(--card-border)', fontSize: 'var(--text-sm)',

@@ -44,7 +44,12 @@ export default function App() {
     return (
       <Library
         onNew={() => navigate({ screen: 'editor', programmeId: null })}
-        onQuickNew={() => navigate({ screen: 'editor', programmeId: null, autoOpenQuickCreate: true })}
+        onQuickNew={() => navigate({
+          screen: 'editor', programmeId: null,
+          // Settings → "Use Quick Create as default" — defaults to true
+          // (today's behaviour) until a user explicitly turns it off.
+          autoOpenQuickCreate: session.user.user_metadata?.quickCreateDefault !== false,
+        })}
         onEdit={(id) => navigate({ screen: 'editor', programmeId: id })}
         onRun={(id) => navigate({ screen: 'workout', programmeId: id })}
         onSettings={() => navigate({ screen: 'settings' })}

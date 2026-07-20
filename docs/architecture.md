@@ -20,9 +20,10 @@ src/
       QuickSelectModal.jsx        Owns step state, shortlist, generate/merge
       SelectStep.jsx               Search/filter/multi-select from the exercise catalog
       AssignStep.jsx                Assign each shortlisted exercise to a block number
-      PreviewStep.jsx               Review grouped by block, drag-and-drop reorder/
-                                    reassign, generate (with an unassigned-items confirm gate)
-      sharedStyles.jsx              Style objects + small icons shared by the three steps
+      PreviewStep.jsx               Review grouped by block, drag-and-drop reorder/reassign,
+                                    generate (single tap, native confirm() if anything's unassigned)
+      styles.js / icons.jsx         Style objects / small icons shared by the three steps
+                                    (split across two files — see "V2 UI overhaul" below)
     ActiveWorkout.jsx           Owns the single useTimerEngine instance for a run;
                                  overview + LiveBar, or delegates to TimerRun when expanded
     LiveBar.jsx                 Persistent status strip (exercise, phase, controls)
@@ -34,8 +35,11 @@ src/
     AppTabBar.jsx                 Persistent Library/History bottom tab bar, with a
                                  contextual third "Running" tab while a workout is active
     icons.jsx                    Small inline SVG icon set — no icon library dependency
-    Settings.jsx                Name, theme, density, sign out
-    History.jsx                 Computed stats, month calendar, recent sessions
+                                 (shapes ported from the v2 design reference, see below)
+    Settings.jsx                Name, theme, palette, font, density, Quick-Create-default
+                                 toggle, sign out
+    History.jsx                 Computed stats, paged month calendar with forecast/to-date/
+                                 final summary modes, tap-a-day filter, recent sessions
 
   hooks/
     useTimerEngine.js           Phase-sequencing state machine (see below) + React glue
@@ -58,6 +62,134 @@ src/
 supabase/
   schema.sql                     Canonical DDL + RLS + triggers, idempotent, run manually
 ```
+
+## V2 UI overhaul (design reconciliation)
+
+The claude.ai/design project `019e20f9-729f-772a-8791-fac43e006909` ("OVERCLOCK
+Refined UI") was updated to a fuller v2 prototype — a complete second app
+(`src/{app,library,active,countdown,history,program-details,components,
+data,styles,datepicker,quick-create,swap-modal}.jsx`) covering every screen,
+not just Quick Create's handoff folder used earlier. This section is the
+decision log requested when reconciling it against the real, already-shipped
+app: what got adopted as a visual/interaction reskin, what got deferred as
+functionally new, and the one place the two design sources disagree.
+
+**Colour conflict between the two design sources.** The dedicated
+"Overclocked HIIT design system" project (`9fe5fdc5-...`, used for the
+brand-colours change) defines indigo `#5457c6` as the accent/RECOVER/
+primary-action colour and explicitly declares its `tokens/colors.css`
+"Source of truth: overclocked-hiit-trainer & overclocked-shared-ui
+src/shared-ui/theme/tokens.css." The v2 prototype's own `src/styles.css`
+uses a different blue, `#2563EB`, for the same semantic role, and has no
+indigo token at all. **Decision: the dedicated design-system project wins**
+— it's the one that names itself canonical for this repo, and it's what's
+already landed as the brand-scale token update. V2's screens are ported for
+layout/typography/spacing/component shape, not for this one specific hex
+value; the app's real accent/RECOVER colour is indigo throughout.
+
+**Screen architecture — kept separate (explicit decision, not silently
+picked).** V2's `ActiveWorkoutScreen` merges viewing and editing into one
+component with a `mode: 'view' | 'edit'` toggle (inline renaming, swipe-to-
+delete/swap exercises, add block/exercise, all in place). Asked directly,
+the answer was to keep `ActiveWorkout.jsx` (view/run) and
+`ProgrammeEditor.jsx` (separate editable-draft screen) as two screens, per
+the existing nav stack — `ActiveWorkout` gets v2's visual language for
+viewing/running; "Edit" still navigates to `ProgrammeEditor` exactly as
+today. This also means v2's `SwipeRow`/swap-menu editing pattern doesn't
+apply to `ActiveWorkout` at all under this decision (see deferred list).
+
+**Adopted this pass** (visual/interaction reskin, no schema or engine
+changes, no conflict with anything already decided):
+- Global look: v2's card/button/pill/icon-button recipes, ported into the
+  existing `--card-*`/`--btn-*`/`--color-*` token system (not a parallel
+  `--oc-*` namespace — one token system, per the no-duplication brief).
+  Brand tokens (`--color-brand-lime`/`-indigo`) cascaded into the semantic
+  layer they were always meant to feed: `--color-action-primary`,
+  `--color-timer-work`/`-rest`/`-intro`/`-complete`, `--color-border-focus`,
+  `--color-input-border-focus`.
+- V2's icon glyph shapes, ported into the existing `src/components/
+  icons.jsx` (same module, no second icon set).
+- Library: top bar (logotype + settings gear), greeting/date line, "Start
+  the clock." hero, card list. The weekly calendar strip is restyled to
+  v2's ink-card/big-date-number/dot-legend look, but **keeps this app's
+  real `session_logs`-derived DONE/MISSED/PLANNED data** — v2's own
+  `WeekDatePicker` component uses hardcoded fake day statuses (including a
+  "future scheduled" blue dot with no real scheduling feature behind it),
+  which isn't something to port; only the visual treatment is.
+- LiveBar: v2's dark-ink bar with a phase-accent border — already the same
+  control set (pause/skip/expand/stop), reskin only.
+- TimerRun: v2's settings-flyout (one gear icon consolidating saturated/
+  split/volume, replacing three separate header toggles), the NEXT+THEN
+  two-tile preview (vs. today's single NEXT tile), and a tick-row round-
+  progress indicator — all purely presentational, computed from
+  `useTimerEngine` state that already exists. Split view gets the same
+  visual restyle. No `timerReducer` changes.
+- History: rebuilt to v2's month-calendar-with-paging, today badge,
+  forecast/to-date/final summary mode, and session list — entirely
+  computable client-side from the sessions `listAllSessions()` already
+  returns; no schema change.
+- Settings: v2 has **no settings screen at all** (its equivalent controls
+  only exist in `tweaks-panel.jsx`, prototyping chrome for the design tool
+  itself, not part of the product — confirmed not to port). Kept as-is
+  functionally, reskinned visually, plus the one new toggle below.
+- ProgrammeEditor and the Quick Select flow: visual reskin only, plus the
+  three explicit fixes below.
+
+**Three explicit fixes to Quick Select / entry points this pass:**
+1. **Quick-Create-default setting.** `Settings.jsx` gains a toggle
+   ("Use Quick Create as the default way to create a programme"), stored in
+   `supabase.auth` `user_metadata` (same mechanism as display name — no new
+   table). Library's "+ New" reads it: on → opens a fresh `ProgrammeEditor`
+   draft with Quick Select pre-opened (today's behaviour); off → opens the
+   plain blank editor, which already has its own "Quick Create" button
+   between the header fields and the Blocks section.
+2. **AssignStep's "clear assignment" control.** Was a bare X — the same
+   glyph `PreviewStep` uses for permanently removing an exercise, which
+   reads as "delete" when it actually just clears the block assignment.
+   Replaced with a distinct unassign/return icon.
+3. **PreviewStep's confirm-gate.** Replaced the "tap Generate, its label
+   changes, tap it again" pattern with: unassigned items present → tapping
+   Generate opens a native `window.confirm()` (the same pattern already
+   used for Stop-workout and Delete-programme) naming the count and that
+   they'll be excluded; confirming generates immediately. Nothing
+   unassigned → Generate fires on the first tap, unchanged. The passive
+   dashed-red warning banner in the list stays, with its existing text —
+   no replacement copy was specified, flagging this as worth a follow-up
+   look rather than guessing at new wording.
+
+**Explicitly deferred, flagged for confirmation** — each is functionally
+new (schema and/or `timerReducer` changes), not a reskin:
+- **Swipe-to-delete/quick-swap/swap-menu** (`SwipeRow`, `SwapModal`,
+  `quickSwap` cycling) — a real touch-gesture component plus a live
+  exercise-substitution data flow. Doesn't apply to `ActiveWorkout` under
+  the screen-architecture decision above; could land later as a feature on
+  `ProgrammeEditor`'s own block list.
+- **Inline mid-run editing** (editable reps/weight + "confirm as actuals"
+  checkmark during ACTIVE/RECOVER) and a **"Back" reverse-timer control** —
+  both need new `timerReducer` actions/states, which is the one place a
+  subtle bug is easy to introduce and hard to notice (see the reducer's
+  own test suite); needs its own design + test pass, not a rubber-stamp.
+  The inline-editing case also raises a real product question v2 doesn't
+  answer: edits during a run mutate the shared programme object directly,
+  which would leak session actuals into the plan's future-run defaults.
+- **Per-block "Inherit programme interval" + override, and a
+  "between blocks" recovery interval** — needs new `blocks`/`programmes`
+  columns and new phase-engine behaviour. Same category already flagged
+  as out-of-scope when Quick Select was built.
+- **A cooldown countdown distinct from recover** — v2's `ProgramDetails`
+  has this, but `docs/requirements.md`'s out-of-scope list already
+  explicitly declines "A cooldown phase distinct from recover." This is a
+  direct conflict with an existing documented decision, not just an
+  unbuilt nice-to-have — surfaced here rather than silently built or
+  silently dropped.
+- **Extended programme metadata** (`ProgramDetails`'s Coach/Athlete/Week/
+  Status/Description/Check-in time/Comments/Remarks) and **per-programme
+  audio on/off + volume** (vs. today's global device volume) — all need
+  new schema columns. The Coach/Athlete framing specifically echoes the
+  multi-user/coach-client model the project has already and repeatedly
+  declined; recommend dropping that labelling even in a future pass, and
+  scoping any revisit to the fields that are actually single-user-relevant
+  (status, description, notes).
 
 ## The timer engine
 

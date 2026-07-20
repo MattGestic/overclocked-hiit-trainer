@@ -18,13 +18,16 @@ built — see [`docs/architecture.md`](architecture.md) for how, and
    instead of typing each row by hand — search/filter and multi-select
    exercises, assign each to a block number, review grouped by block with
    drag-and-drop reorder (including moving an exercise to a different
-   block), then generate. Generated blocks are appended to the programme
-   draft, inheriting the interval (active/recover seconds) of the
-   programme's first existing block, or 45/15s if it has none yet — never
-   written to Supabase until the normal Save. Reachable from
-   `ProgrammeEditor`'s own "Quick Create" button and from Library's
-   "+ New". *(`QuickSelectModal.jsx` and its `SelectStep`/`AssignStep`/
-   `PreviewStep`; `src/lib/exerciseCatalog.js`)*
+   block), then generate. Generating with exercises still unassigned asks
+   for confirmation (native confirm, one tap) rather than requiring a
+   second tap on the Generate button itself. Generated blocks are appended
+   to the programme draft, inheriting the interval (active/recover
+   seconds) of the programme's first existing block, or 45/15s if it has
+   none yet — never written to Supabase until the normal Save. Reachable
+   from `ProgrammeEditor`'s own "Quick Create" button and from Library's
+   "+ New" (unless turned off in Settings, see #16). *(`QuickSelectModal.jsx`
+   and its `SelectStep`/`AssignStep`/`PreviewStep`; `src/lib/
+   exerciseCatalog.js`)*
 5. Delete a programme (confirm first — cascades to its blocks/activities).
 6. Start a programme and see: a persistent live status strip (current
    exercise, phase, countdown, pause/skip/expand/stop) while browsing the
@@ -50,10 +53,15 @@ built — see [`docs/architecture.md`](architecture.md) for how, and
 14. Completing or stopping a run logs a session record, feeding the
     Library's weekly strip and the History screen. *(`sessionLogsApi.js`)*
 15. History screen: this-week count, current streak, all-time hours, a
-    navigable month calendar with session days marked, and a recent-
-    sessions list. *(`History.jsx`)*
+    navigable month calendar (with muted leading/trailing days from
+    adjacent months, a "Today" jump when viewing another month, and a
+    per-day summary mode — Final for a past month, To date for the
+    current one, an averaged Forecast for a future one), a tap-a-day
+    filter on the session list, and a recent-sessions list. *(`History.jsx`)*
 16. Settings screen: display name, theme (dark/light), colour palette, font
-    pairing, and a real density toggle, sign out. *(`Settings.jsx`)*
+    pairing, a real density toggle, a toggle for whether Library's "+ New"
+    opens Quick Create directly or the standard create-programme screen,
+    and sign out. *(`Settings.jsx`)*
 17. Browser/PWA back button navigates within the app instead of leaving it,
     and always returns to the screen that was actually previous — not a
     hardcoded destination. *(`useNavStack.js`)*
@@ -76,3 +84,17 @@ built — see [`docs/architecture.md`](architecture.md) for how, and
   per-exercise (rather than per-block) work/rest timing — both visible in
   Quick Create's own design reference but not part of its v1 build (see
   `docs/architecture.md`)
+- Swipe-to-delete / quick-swap / swap-menu exercise editing — a touch-
+  gesture component and a live exercise-substitution flow, seen in the v2
+  design reference but not built this pass
+- Inline exercise editing (reps/weight + "confirm as actuals") during a
+  live run, and a "Back" reverse-timer control — both need new
+  `timerReducer` states/actions, not a visual change
+- A "between blocks" recovery interval — needs a new schema column and
+  phase-engine behaviour, same category as the per-block interval override
+  above
+- Extended programme metadata (coach/athlete/week/status/description/
+  check-in time/comments/remarks) and per-programme audio volume (vs.
+  today's global device volume) — both need new schema columns; the
+  coach/athlete framing specifically echoes the declined multi-user model
+  above and isn't recommended even if this is revisited later
