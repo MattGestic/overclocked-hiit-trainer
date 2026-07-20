@@ -44,6 +44,7 @@ export default function App() {
     return (
       <Library
         onNew={() => navigate({ screen: 'editor', programmeId: null })}
+        onQuickNew={() => navigate({ screen: 'editor', programmeId: null, autoOpenQuickCreate: true })}
         onEdit={(id) => navigate({ screen: 'editor', programmeId: id })}
         onRun={(id) => navigate({ screen: 'workout', programmeId: id })}
         onSettings={() => navigate({ screen: 'settings' })}
@@ -58,6 +59,7 @@ export default function App() {
         programmeId={view.programmeId}
         onSaved={goBack}
         onCancel={goBack}
+        autoOpenQuickCreate={!!view.autoOpenQuickCreate}
       />
     )
   }

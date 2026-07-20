@@ -12,7 +12,17 @@ src/
     Login.jsx                   Email/password form
     Library.jsx                 Programme list, weekly DONE/MISSED/PLANNED calendar strip,
                                  responsive grid
-    ProgrammeEditor.jsx         Create/edit form — name/type/intro/blocks/activities
+    ProgrammeEditor.jsx         Create/edit form — name/type/intro/blocks/activities;
+                                 also the Quick Create entry point + merge target
+    Modal.jsx                    Reusable dialog shell (centered or full-bleed), the first
+                                 consumer of tokens.css's previously-unused dialog/z-modal set
+    QuickSelect/                 Quick Create flow — see "Quick Create" below
+      QuickSelectModal.jsx        Owns step state, shortlist, generate/merge
+      SelectStep.jsx               Search/filter/multi-select from the exercise catalog
+      AssignStep.jsx                Assign each shortlisted exercise to a block number
+      PreviewStep.jsx               Review grouped by block, drag-and-drop reorder/
+                                    reassign, generate (with an unassigned-items confirm gate)
+      sharedStyles.jsx              Style objects + small icons shared by the three steps
     ActiveWorkout.jsx           Owns the single useTimerEngine instance for a run;
                                  overview + LiveBar, or delegates to TimerRun when expanded
     LiveBar.jsx                 Persistent status strip (exercise, phase, controls)
@@ -40,6 +50,7 @@ src/
     sessionLogsApi.js            Session logging + stats queries
     audioEngine.js                Cue playback — delivered module, real decoded audio assets
                                  (see "Audio engine" below)
+    exerciseCatalog.js            Quick Create's bundled 26-exercise/5-category catalog
 
   shared-ui/                     Vendored design system (see ADR 0002) — tokens, ThemeProvider,
                                  ToastProvider, DayDots, TabBar, Avatar, etc.
@@ -162,6 +173,72 @@ three sequential Supabase calls, not wrapped in a client-side transaction.
 A failure between steps can leave a programme with stale/missing blocks.
 Acceptable for this MVP's scale; the fast follow is a single Postgres RPC
 that does the whole replace atomically.
+
+## Quick Create
+
+An alternative to typing every block/exercise row by hand in
+`ProgrammeEditor`. Built against a high-fidelity design reference (a
+claude.ai/design project's `design_handoff_quick_create/`), adapted to
+this app's real schema and screen topology rather than ported literally —
+see the two adaptations below.
+
+**Flow**: `QuickSelectModal` owns three-step state (`select → assign →
+preview`) plus a `shortlist` array, `{ id, name, group, block: number |
+null }`, sourced from the static `EXERCISE_CATALOG` in
+`exerciseCatalog.js`. `SelectStep` toggles catalog entries in/out of the
+shortlist; `AssignStep` sets each item's `block` (existing block number, or
+`+ New Block N`, or back to unassigned); `PreviewStep` groups the
+shortlist by ascending `block`, supports HTML5 drag-and-drop both to
+reorder within a block and to reassign an item to a different block
+(`onMove` splices the shortlist and updates `block` in one operation — see
+`QuickSelectModal.jsx`), and gates "Generate" behind a confirm step if
+anything's still unassigned (unassigned items are dropped, not generated).
+Closing the modal at any step discards the whole draft — no autosave or
+resume; the next open always starts fresh at `select`.
+
+**Generate never writes to Supabase.** `onGenerate(newBlocks)` is a plain
+callback — `QuickSelectModal` builds `newBlocks` client-side and
+`ProgrammeEditor.handleQuickCreateGenerate` appends them to the existing
+`programme.blocks` draft state, the same state the manual block/activity
+editing already operates on. This works uniformly whether the programme
+is new (`id: null`) or existing, gets `validate()` for free, and means
+Cancel still discards everything — same as manual editing.
+
+**Interval inheritance without a schema field.** The design reference
+reads a `program.interval.active`/`.recover` object that has no schema
+equivalent (`blocks.active_seconds`/`recover_seconds` are per-block, not
+per-programme). Since Quick Create doesn't expose its own interval
+controls, generated blocks inherit the draft's **first existing block's**
+`active`/`recover`, falling back to **45/15 seconds** if the programme has
+no blocks yet — computed once at generate time (`effectiveInterval()` in
+`QuickSelectModal.jsx`), not stored anywhere.
+
+**Two entry points, both routed through `ProgrammeEditor`'s draft state**
+rather than the reference's literal placement (its `ActiveWorkoutScreen`
+has a `view`/`edit` mode toggle this app doesn't — `ActiveWorkout.jsx` is
+read-only, only `ProgrammeEditor.jsx` has draft/save capability):
+`ProgrammeEditor`'s own "Quick Create" button, and Library's "+ New"
+(`onQuickNew` in `App.jsx`), which navigates to a fresh `ProgrammeEditor`
+draft with `autoOpenQuickCreate` set so the modal opens immediately instead
+of landing on the blank manual form. Library's empty-state "New
+Programme" button (`onNew`) is unchanged — manual form, matching prior
+behaviour.
+
+**No new colour tokens.** Quick Create's components consume this app's
+existing `--color-action-primary`/`--color-timer-work`/`--color-action-
+danger`/`--color-border-subtle`/`-default` tokens rather than the design
+reference's own blue/teal palette, so it renders in this app's real
+(palette-varying) accent instead of a parallel, hardcoded colour scheme.
+The only tokens.css change is `--font-mono` gaining `'JetBrains Mono'` at
+the front of its stack (additive).
+
+**Not built, deliberately** (surfaced by the design reference, out of
+scope for this pass): a `programmes`-level default interval with a
+per-block override (the reference has this, this app doesn't — a
+`ProgrammeEditor`-wide feature, not Quick-Create-specific); per-exercise
+(rather than per-block) work/rest timing; a swipe-to-swap exercise
+pattern; reconciling this app's fixed-accent palette system against the
+reference's per-palette accent/success variation more broadly.
 
 ## Styling
 

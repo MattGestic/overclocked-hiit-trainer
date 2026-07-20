@@ -105,7 +105,7 @@ function todayLine() {
   return `${weekday} · ${date} · ${time}`
 }
 
-export default function Library({ onNew, onEdit, onRun, onSettings, navigate }) {
+export default function Library({ onNew, onQuickNew, onEdit, onRun, onSettings, navigate }) {
   const [programmes, setProgrammes] = useState(null) // null = loading
   const [error, setError] = useState(null)
   const [dailyReps, setDailyReps] = useState({})
@@ -154,7 +154,7 @@ export default function Library({ onNew, onEdit, onRun, onSettings, navigate }) 
 
       <div className="flex items-center justify-between" style={{ margin: '28px 0 12px' }}>
         <span style={s.sectionLabel}>Programmes</span>
-        <button onClick={onNew} style={s.newBtn}>+ New</button>
+        <button onClick={onQuickNew} style={s.newBtn}>+ New</button>
       </div>
 
       {programmes === null && !error && (
