@@ -4,6 +4,7 @@ import { timeAgo } from '../shared-ui/utils/format'
 import { listProgrammes, deleteProgramme } from '../lib/programmesApi'
 import { listSessionCountsSince } from '../lib/sessionLogsApi'
 import { useLayout } from '../hooks/useLayout'
+import { IconSettings, IconPlus, IconChevron, IconEdit, IconTrash } from './icons'
 import AppTabBar from './AppTabBar'
 
 function libraryMaxWidth(bp) {
@@ -35,11 +36,12 @@ function fetchLibraryData() {
 const WEEKDAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 const MONTH_LABELS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 
-// DONE / MISSED / PLANNED week strip (refined-UI p.1). No separate
-// "scheduling" data model exists — status is derived purely from a day's
-// position relative to today plus whether a session was logged that day:
-// past-with-session = done, past-without = missed, future = planned,
-// today-without-session-yet reads as neutral (the day isn't over).
+// DONE / MISSED / PLANNED week strip, restyled to the v2 reference's dark
+// ink card (WeekDatePicker) — but status still derives purely from real
+// session data, not v2's own hardcoded fake day statuses: past-with-session
+// = done, past-without = missed, future = planned, today-without-session-
+// yet reads as neutral (the day isn't over). No scheduling feature exists
+// to back a real "planned" concept beyond "this date hasn't happened yet."
 function WeekCalendar({ dailyReps }) {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -58,7 +60,7 @@ function WeekCalendar({ dailyReps }) {
 
   const dotColor = {
     done: 'var(--color-timer-work)',
-    missed: 'var(--color-text-subtle)',
+    missed: 'var(--color-text-on-primary)',
     planned: 'var(--color-timer-rest)',
     neutral: 'transparent',
   }
@@ -76,10 +78,10 @@ function WeekCalendar({ dailyReps }) {
       <div style={s.calGrid}>
         {days.map(({ date, isToday, status }) => (
           <div key={date.toDateString()} style={{ ...s.calDay, ...(isToday ? s.calDayToday : null) }}>
-            <span style={{ ...s.calWeekday, color: [0, 6].includes(date.getDay()) ? 'var(--color-timer-warning)' : 'var(--color-text-subtle)' }}>
+            <span style={{ ...s.calWeekday, color: [0, 6].includes(date.getDay()) ? 'var(--color-action-danger)' : 'var(--color-text-on-primary)', opacity: [0, 6].includes(date.getDay()) ? 0.85 : 0.55 }}>
               {WEEKDAY_LABELS[date.getDay()]}
             </span>
-            <span style={s.calDate}>{date.getDate()}</span>
+            <span style={{ ...s.calDate, color: 'var(--color-text-on-primary)' }}>{date.getDate()}</span>
             <span style={{ ...s.calDot, background: dotColor[status] }} />
           </div>
         ))}
@@ -91,7 +93,7 @@ function WeekCalendar({ dailyReps }) {
 function LegendDot({ color, label }) {
   return (
     <span style={s.legendItem}>
-      <span style={{ ...s.legendDot, background: color === 'transparent' ? 'var(--color-text-subtle)' : color }} />
+      <span style={{ ...s.legendDot, background: color === 'transparent' ? 'var(--color-text-on-primary)' : color, opacity: color === 'transparent' ? 0.4 : 1 }} />
       {label}
     </span>
   )
@@ -143,8 +145,12 @@ export default function Library({ onNew, onQuickNew, onEdit, onRun, onSettings, 
   return (
     <div className="mx-auto w-full" style={{ maxWidth: libraryMaxWidth(layout.bp), padding: '0 var(--shell-px-mobile) calc(var(--bottom-nav-h) + 24px)', transition: 'max-width 0.2s' }}>
       <header className="flex items-center justify-between" style={{ padding: '24px 0 4px' }}>
-        <h1 style={s.wordmark}>OVER&bull;CLOCK</h1>
-        <button onClick={onSettings} aria-label="Settings" style={s.settingsBtn}>&#9881;</button>
+        <h1 style={s.wordmark}>
+          OVER<span style={{ color: 'var(--color-timer-work)' }}>&bull;</span>CLOCK
+        </h1>
+        <button onClick={onSettings} aria-label="Settings" style={s.settingsBtn}>
+          <IconSettings size={16} />
+        </button>
       </header>
 
       <div style={s.dateLine}>{todayLine()}</div>
@@ -154,7 +160,9 @@ export default function Library({ onNew, onQuickNew, onEdit, onRun, onSettings, 
 
       <div className="flex items-center justify-between" style={{ margin: '28px 0 12px' }}>
         <span style={s.sectionLabel}>Programmes</span>
-        <button onClick={onQuickNew} style={s.newBtn}>+ New</button>
+        <button onClick={onQuickNew} style={s.newBtn}>
+          <IconPlus size={12} /> New
+        </button>
       </div>
 
       {programmes === null && !error && (
@@ -186,17 +194,22 @@ export default function Library({ onNew, onQuickNew, onEdit, onRun, onSettings, 
             <div key={p.id} style={s.card}>
               <button onClick={() => onRun(p.id)} className="flex items-center flex-1" style={s.cardMain}>
                 <div style={s.durationBadge}>{p.durationMinutes}</div>
-                <div style={{ minWidth: 0 }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={s.programmeName}>{p.name}</div>
                   <div style={s.programmeMeta}>
                     <span style={s.typeTag}>{p.type}</span>
                     <span>&middot; {p.blockCount} block{p.blockCount === 1 ? '' : 's'} &middot; {timeAgo(p.updatedAt)}</span>
                   </div>
                 </div>
+                <span style={{ color: 'var(--color-text-muted)', flexShrink: 0 }}><IconChevron size={14} /></span>
               </button>
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                <button onClick={() => onEdit(p.id)} aria-label={`Edit ${p.name}`} style={s.iconBtn}>Edit</button>
-                <button onClick={() => handleDelete(p.id, p.name)} aria-label={`Delete ${p.name}`} style={s.deleteBtn}>Delete</button>
+                <button onClick={() => onEdit(p.id)} aria-label={`Edit ${p.name}`} style={s.iconBtn}>
+                  <IconEdit size={14} />
+                </button>
+                <button onClick={() => handleDelete(p.id, p.name)} aria-label={`Delete ${p.name}`} style={s.deleteBtn}>
+                  <IconTrash size={14} />
+                </button>
               </div>
             </div>
           ))}
@@ -210,15 +223,17 @@ export default function Library({ onNew, onQuickNew, onEdit, onRun, onSettings, 
 
 const s = {
   wordmark: {
-    fontFamily: 'var(--font-display)', fontWeight: 'var(--weight-bold)', fontSize: 'var(--text-2xl)',
-    letterSpacing: 'var(--tracking-wide)', color: 'var(--color-text-primary)', margin: 0,
+    display: 'flex', alignItems: 'baseline', gap: 1,
+    fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'var(--text-xl)',
+    letterSpacing: '0.1em', color: 'var(--color-text-primary)', margin: 0, textTransform: 'uppercase',
   },
   settingsBtn: {
-    width: 40, height: 40, borderRadius: 'var(--radius-md)', background: 'var(--color-action-secondary)',
-    color: 'var(--color-action-secondary-text)', border: 'none', cursor: 'pointer', fontSize: 16,
+    width: 38, height: 38, borderRadius: 'var(--radius-md)', background: 'var(--card-bg)',
+    color: 'var(--color-text-primary)', border: '1px solid var(--card-border)', cursor: 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   dateLine: {
-    fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-xs)', letterSpacing: 'var(--tracking-wide)',
+    fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 10.5, letterSpacing: '0.18em',
     color: 'var(--color-text-muted)', textTransform: 'uppercase', marginTop: 4,
   },
   hero: {
@@ -227,27 +242,28 @@ const s = {
     margin: '4px 0 20px',
   },
   calCard: {
-    background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: 'var(--card-radius)',
-    padding: 'var(--card-padding-md)',
+    background: 'var(--color-bg-inverse)', borderRadius: 20,
+    padding: '14px 8px 12px',
   },
-  calHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 },
-  calTitle: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-sm)', letterSpacing: 'var(--tracking-wide)', color: 'var(--color-text-primary)' },
+  calHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8, padding: '0 8px' },
+  calTitle: { fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--color-text-on-primary)', opacity: 0.7 },
   calLegend: { display: 'flex', gap: 12 },
-  legendItem: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'var(--color-text-muted)', fontFamily: 'var(--font-display)', letterSpacing: '0.06em', textTransform: 'uppercase' },
+  legendItem: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 8.5, color: 'var(--color-text-on-primary)', opacity: 0.6, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' },
   legendDot: { width: 6, height: 6, borderRadius: '50%', flexShrink: 0 },
-  calGrid: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 },
-  calDay: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '8px 2px', borderRadius: 'var(--radius-md)' },
-  calDayToday: { background: 'var(--color-bg-inverse)', boxShadow: '0 0 0 1px var(--color-border-strong)' },
-  calWeekday: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 9, letterSpacing: '0.08em' },
-  calDate: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-lg)', color: 'var(--color-text-primary)' },
-  calDot: { width: 6, height: 6, borderRadius: '50%' },
+  calGrid: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 },
+  calDay: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, padding: '8px 2px 9px', borderRadius: 12 },
+  calDayToday: { background: 'rgba(255,255,255,0.10)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.10)' },
+  calWeekday: { fontFamily: 'var(--font-body)', fontWeight: 800, fontSize: 9.5, letterSpacing: '0.08em' },
+  calDate: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 21, lineHeight: 1 },
+  calDot: { width: 6, height: 6, borderRadius: '50%', marginTop: 1 },
   sectionLabel: {
     fontFamily: 'var(--font-display)', fontWeight: 'var(--weight-bold)', fontSize: 'var(--text-xs)',
     letterSpacing: 'var(--tracking-label)', textTransform: 'uppercase', color: 'var(--color-text-muted)',
   },
   newBtn: {
-    fontFamily: 'var(--font-display)', fontWeight: 'var(--weight-bold)', fontSize: 'var(--text-xs)',
-    letterSpacing: 'var(--tracking-label)', color: 'var(--color-action-primary)',
+    display: 'inline-flex', alignItems: 'center', gap: 4,
+    fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 11,
+    letterSpacing: '0.1em', color: 'var(--color-action-primary)',
     background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase',
   },
   newProgrammeBtn: {
@@ -262,7 +278,7 @@ const s = {
   },
   cardMain: { gap: 14, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: 0, minWidth: 0, flex: 1 },
   durationBadge: {
-    width: 44, height: 44, borderRadius: 'var(--radius-lg)', flexShrink: 0,
+    width: 44, height: 44, borderRadius: 8, flexShrink: 0,
     background: 'var(--color-bg-inverse)', color: 'var(--color-timer-work)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 'var(--text-md)',
@@ -275,15 +291,15 @@ const s = {
     fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', display: 'flex', gap: 6, alignItems: 'center',
     overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
   },
-  typeTag: { color: 'var(--color-action-primary)', fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: 'var(--tracking-label)', flexShrink: 0 },
+  typeTag: { color: 'var(--color-timer-work)', fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: 'var(--tracking-label)', flexShrink: 0, textTransform: 'uppercase' },
   iconBtn: {
-    minWidth: 44, minHeight: 44, background: 'var(--color-action-secondary)', color: 'var(--color-action-secondary-text)',
-    border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontFamily: 'var(--font-display)',
-    fontWeight: 700, fontSize: 'var(--text-xs)',
+    minWidth: 38, minHeight: 38, background: 'var(--card-bg)', color: 'var(--color-text-primary)',
+    border: '1px solid var(--card-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
   deleteBtn: {
-    minWidth: 44, minHeight: 44, background: 'transparent', color: 'var(--color-action-danger)',
+    minWidth: 38, minHeight: 38, background: 'transparent', color: 'var(--color-action-danger)',
     border: '1px solid var(--color-action-danger)', borderRadius: 'var(--radius-md)', cursor: 'pointer',
-    fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-xs)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
 }

@@ -43,7 +43,7 @@ export default function LiveBar({ engine, programme, onExpand, onStop }) {
     : activity?.name ?? ''
 
   return (
-    <div style={s.wrap}>
+    <div style={{ ...s.wrap, borderBottom: `2px solid ${color}` }}>
       <div style={s.row}>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={s.exerciseName}>{exerciseName}</div>
@@ -83,7 +83,7 @@ export default function LiveBar({ engine, programme, onExpand, onStop }) {
 const s = {
   wrap: {
     position: 'sticky', top: 0, zIndex: 'var(--z-sticky)',
-    background: 'var(--color-bg-card-elevated)', color: 'var(--color-text-primary)',
+    background: 'var(--color-bg-inverse)', color: 'var(--color-text-inverse)',
     borderRadius: 'var(--radius-xl)', padding: 'var(--space-4)', margin: '0 0 var(--space-4)',
     overflow: 'hidden', boxShadow: 'var(--shadow-card)',
   },

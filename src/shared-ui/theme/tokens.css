@@ -61,15 +61,15 @@
   --color-border-default: #d6ccb7;
   --color-border-strong:  #a89f8d;
   --color-border-inverse: rgba(255, 255, 255, 0.18);
-  --color-border-focus:   #84cc16;
+  --color-border-focus:   var(--color-brand-indigo);
   --color-border-error:   #dc2626;
   --color-border-success: #16a34a;
   --color-border-warning: #f59e0b;
 
   /* ── Actions ─────────────────────────────────────────────── */
-  --color-action-primary:         #111827;
-  --color-action-primary-hover:   #1f2937;
-  --color-action-primary-pressed: #030712;
+  --color-action-primary:         var(--color-brand-indigo);
+  --color-action-primary-hover:   var(--color-brand-indigo-hover);
+  --color-action-primary-pressed: var(--color-brand-indigo-pressed);
   --color-action-primary-text:    #ffffff;
 
   --color-action-secondary:         #e7dfcc;
@@ -77,10 +77,10 @@
   --color-action-secondary-pressed: #c8bea8;
   --color-action-secondary-text:    #111827;
 
-  --color-action-positive:         #84cc16;
-  --color-action-positive-hover:   #65a30d;
-  --color-action-positive-pressed: #4d7c0f;
-  --color-action-positive-text:    #111827;
+  --color-action-positive:         var(--color-brand-lime);
+  --color-action-positive-hover:   var(--color-brand-lime-hover);
+  --color-action-positive-pressed: var(--color-brand-lime-pressed);
+  --color-action-positive-text:    #ffffff;
 
   --color-action-danger:         #dc2626;
   --color-action-danger-hover:   #b91c1c;
@@ -132,11 +132,11 @@
      full-screen background for a "fully saturated" phase treatment (e.g.
      RECOVER flooding the screen with --color-timer-rest). `warning` is the
      shared countdown-tick accent, not a phase of its own. */
-  --color-timer-work:     #84cc16;
-  --color-timer-rest:     #38bdf8;
-  --color-timer-intro:    #6366f1;
+  --color-timer-work:     var(--color-brand-lime);
+  --color-timer-rest:     var(--color-brand-indigo);
+  --color-timer-intro:    var(--color-brand-indigo);
   --color-timer-warning:  #f97316;
-  --color-timer-complete: #22c55e;
+  --color-timer-complete: var(--color-brand-lime);
 
   /* TimerRun's default "light card" background (refined-UI p.3/4) is fixed
      cream/navy regardless of the app's light/dark theme setting — only the
@@ -185,7 +185,7 @@
   --color-input-bg-disabled:  #f3f0e8;
   --color-input-border:       #d6ccb7;
   --color-input-border-hover: #a89f8d;
-  --color-input-border-focus: #84cc16;
+  --color-input-border-focus: var(--color-brand-indigo);
   --color-input-text:         #111827;
   --color-input-placeholder:  #9ca3af;
   --color-input-label:        #374151;
@@ -272,7 +272,7 @@
   --shadow-md:   0 6px 16px rgba(17, 24, 39, 0.12);
   --shadow-lg:   0 12px 32px rgba(17, 24, 39, 0.16);
   --shadow-xl:   0 20px 48px rgba(17, 24, 39, 0.22);
-  --shadow-focus: 0 0 0 3px rgba(132, 204, 22, 0.35);
+  --shadow-focus: 0 0 0 3px rgba(84, 87, 198, 0.35);
 
   /* Semantic shadow aliases */
   --shadow-card:       var(--shadow-sm);
@@ -349,7 +349,7 @@
   --opacity-overlay:  0.56;
 
   /* ── Focus ring ──────────────────────────────────────────── */
-  --focus-ring-color:  rgba(132, 204, 22, 0.45);
+  --focus-ring-color:  rgba(84, 87, 198, 0.45);
   --focus-ring-width:  3px;
   --focus-ring-offset: 2px;
 
@@ -517,25 +517,25 @@
   --color-border-default: rgba(255, 255, 255, 0.14);
   --color-border-strong:  rgba(255, 255, 255, 0.24);
   --color-border-inverse: rgba(17, 24, 39, 0.16);
-  --color-border-focus:   #a3e635;
+  --color-border-focus:   var(--color-brand-indigo);
   --color-border-error:   #f87171;
   --color-border-success: #4ade80;
   --color-border-warning: #fbbf24;
 
   /* ── Actions ─────────────────────────────────────────────── */
-  --color-action-primary:         #a3e635;
-  --color-action-primary-hover:   #84cc16;
-  --color-action-primary-pressed: #65a30d;
-  --color-action-primary-text:    #111827;
+  --color-action-primary:         var(--color-brand-indigo);
+  --color-action-primary-hover:   var(--color-brand-indigo-hover);
+  --color-action-primary-pressed: var(--color-brand-indigo-pressed);
+  --color-action-primary-text:    #ffffff;
 
   --color-action-secondary:         #1f2937;
   --color-action-secondary-hover:   #273449;
   --color-action-secondary-pressed: #334155;
   --color-action-secondary-text:    #f9fafb;
 
-  --color-action-positive:         #a3e635;
-  --color-action-positive-hover:   #84cc16;
-  --color-action-positive-pressed: #65a30d;
+  --color-action-positive:         var(--color-brand-lime);
+  --color-action-positive-hover:   var(--color-brand-lime-hover);
+  --color-action-positive-pressed: var(--color-brand-lime-pressed);
   --color-action-positive-text:    #111827;
 
   --color-action-danger:         #f87171;
@@ -582,11 +582,11 @@
   --color-challenge-solo:  #60a5fa;
   --color-challenge-group: #a78bfa;
 
-  --color-timer-work:     #a3e635;
-  --color-timer-rest:     #38bdf8;
-  --color-timer-intro:    #818cf8;
+  --color-timer-work:     var(--color-brand-lime);
+  --color-timer-rest:     var(--color-brand-indigo);
+  --color-timer-intro:    var(--color-brand-indigo);
   --color-timer-warning:  #fb923c;
-  --color-timer-complete: #4ade80;
+  --color-timer-complete: var(--color-brand-lime);
 
   /* ── Charts ──────────────────────────────────────────────── */
   --color-chart-line-primary:   #a3e635;
@@ -612,7 +612,7 @@
   --color-input-bg-disabled:  #111827;
   --color-input-border:       rgba(255, 255, 255, 0.12);
   --color-input-border-hover: rgba(255, 255, 255, 0.22);
-  --color-input-border-focus: #a3e635;
+  --color-input-border-focus: var(--color-brand-indigo);
   --color-input-text:         #f9fafb;
   --color-input-placeholder:  #6b7280;
   --color-input-label:        #d1d5db;
@@ -625,14 +625,14 @@
   --shadow-md:   0 8px 20px rgba(0, 0, 0, 0.36);
   --shadow-lg:   0 16px 36px rgba(0, 0, 0, 0.42);
   --shadow-xl:   0 24px 56px rgba(0, 0, 0, 0.52);
-  --shadow-focus: 0 0 0 3px rgba(163, 230, 53, 0.42);
+  --shadow-focus: 0 0 0 3px rgba(118, 121, 224, 0.42);
 
   --shadow-card:       var(--shadow-sm);
   --shadow-card-hover: var(--shadow-md);
   --shadow-dialog:     var(--shadow-xl);
 
   /* ── Focus ring ──────────────────────────────────────────── */
-  --focus-ring-color: rgba(163, 230, 53, 0.45);
+  --focus-ring-color: rgba(118, 121, 224, 0.45);
 
   /* ── Component overrides ─────────────────────────────────── */
   --card-bg:       var(--color-bg-surface);

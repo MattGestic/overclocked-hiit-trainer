@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { nextIndices } from '../hooks/useTimerEngine'
 import { useLayout } from '../hooks/useLayout'
 import { setVolume, getVolume } from '../lib/audioEngine'
-import { IconChevronDown, IconBolt, IconSquare, IconSpeaker, IconPause, IconPlay, IconSkip, IconRepeat } from './icons'
+import { IconChevronDown, IconBolt, IconSquare, IconSpeaker, IconPause, IconPlay, IconSkip, IconRepeat, IconSettings } from './icons'
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60)
@@ -29,30 +29,109 @@ function currentPhaseDuration(engine, programme) {
   return 0
 }
 
-// Next-up preview, including the phase *type* it belongs to — the NEXT
-// card is color-coded to whatever's coming next (green = exercise, blue =
-// recover), per user-testing markup, not to the current phase. Also carries
-// the upcoming activity's reps/weight: during RECOVER, the stat boxes show
-// what's coming next (matches the refined-UI reference), not the activity
-// that just finished.
-function nextActivityPreview(engine, programme) {
+// NEXT + THEN preview — the two-tile lookahead the v2 reference shows
+// instead of a single NEXT card. Colour-coded to whatever's coming (green =
+// exercise, blue = recover), per user-testing markup, not to the current
+// phase; carries the upcoming activity's reps/weight so the stat boxes
+// during RECOVER show what's coming next, not what just finished.
+function nextThenPreview(engine, programme) {
   const { phase, blockIndex, roundIndex, activityIndex } = engine
   if (phase === 'intro') {
-    const a = programme.blocks[0].activities[0]
-    return { name: a.name, seconds: programme.blocks[0].active, type: 'active', reps: a.reps, weight: a.weight }
+    const block = programme.blocks[0]
+    const a = block.activities[0]
+    return {
+      next: { name: a.name, seconds: block.active, type: 'active', reps: a.reps, weight: a.weight },
+      then: { name: 'Recover', seconds: block.recover, type: 'recover' },
+    }
   }
   if (phase === 'active') {
     const block = programme.blocks[blockIndex]
-    return { name: 'Recover', seconds: block.recover, type: 'recover' }
+    const next = { name: 'Recover', seconds: block.recover, type: 'recover' }
+    const after = nextIndices(programme, blockIndex, roundIndex, activityIndex)
+    if (!after) return { next, then: { name: 'Finish', seconds: 0, type: 'complete' } }
+    const nb = programme.blocks[after.blockIndex]
+    const a = nb.activities[after.activityIndex]
+    return { next, then: { name: a.name, seconds: nb.active, type: 'active', reps: a.reps, weight: a.weight } }
   }
   if (phase === 'recover') {
-    const next = nextIndices(programme, blockIndex, roundIndex, activityIndex)
-    if (!next) return { name: 'Finish', seconds: 0, type: 'complete' }
-    const nextBlock = programme.blocks[next.blockIndex]
-    const a = nextBlock.activities[next.activityIndex]
-    return { name: a.name, seconds: nextBlock.active, type: 'active', reps: a.reps, weight: a.weight }
+    const after = nextIndices(programme, blockIndex, roundIndex, activityIndex)
+    if (!after) return { next: { name: 'Finish', seconds: 0, type: 'complete' }, then: null }
+    const nb = programme.blocks[after.blockIndex]
+    const a = nb.activities[after.activityIndex]
+    const next = { name: a.name, seconds: nb.active, type: 'active', reps: a.reps, weight: a.weight }
+    const after2 = nextIndices(programme, after.blockIndex, after.roundIndex, after.activityIndex)
+    const then = after2 ? { name: 'Recover', seconds: nb.recover, type: 'recover' } : { name: 'Finish', seconds: 0, type: 'complete' }
+    return { next, then }
   }
-  return null
+  return { next: null, then: null }
+}
+
+// Segmented round-progress indicator — how many activities are done in the
+// current block, across rounds. Purely derived from engine state already
+// on hand, no new data model concept.
+function TickRow({ total, current, fg }) {
+  const items = []
+  for (let i = 0; i < total; i++) {
+    const done = i < current - 1
+    const active = i === current - 1
+    items.push(
+      <span
+        key={i}
+        style={{
+          flex: 1, height: 14, borderRadius: 1,
+          background: done || active ? 'var(--color-timer-work)' : fg,
+          opacity: done || active ? 1 : 0.25,
+          boxShadow: active ? '0 0 8px rgba(22,165,116,0.5)' : 'none',
+        }}
+      />
+    )
+  }
+  return <div style={{ display: 'flex', gap: 2, width: '100%', maxWidth: 200 }}>{items}</div>
+}
+
+// Consolidates saturated/split/mute into one gear button + popover, instead
+// of three separate always-visible header icons — matches the v2
+// reference's SettingsFlyout. Purely a presentation change: same three
+// pieces of state (saturated/manualSplit/muted) that already existed.
+function SettingsFlyout({ saturated, setSaturated, splitMode, setSplitMode, muted, toggleMute, onClose }) {
+  return (
+    <>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 20 }} />
+      <div style={s.flyout}>
+        <FlyoutRow label="Saturated mode" icon={<IconBolt size={15} />}>
+          <MiniToggle value={saturated} onChange={setSaturated} />
+        </FlyoutRow>
+        <FlyoutRow label="Split screen" icon={<IconSquare size={15} />}>
+          <MiniToggle value={splitMode} onChange={setSplitMode} />
+        </FlyoutRow>
+        <div style={{ height: 1, background: 'var(--card-border)' }} />
+        <FlyoutRow label="Audio" icon={<IconSpeaker size={15} muted={muted} />}>
+          <MiniToggle value={!muted} onChange={toggleMute} />
+        </FlyoutRow>
+      </div>
+    </>
+  )
+}
+
+function FlyoutRow({ label, icon, children }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span style={{ color: 'var(--color-text-secondary)' }}>{icon}</span>
+      <span style={{ flex: 1, fontSize: 12.5, color: 'var(--color-text-primary)', fontWeight: 600 }}>{label}</span>
+      {children}
+    </div>
+  )
+}
+
+function MiniToggle({ value, onChange }) {
+  return (
+    <button onClick={() => onChange(!value)} style={{
+      width: 36, height: 20, borderRadius: 99, position: 'relative', flexShrink: 0, border: 'none', cursor: 'pointer',
+      background: value ? 'var(--color-timer-work)' : 'var(--color-action-secondary)',
+    }}>
+      <span style={{ position: 'absolute', top: 2, left: value ? 18 : 2, width: 16, height: 16, borderRadius: 99, background: '#fff', transition: 'left 0.15s ease' }} />
+    </button>
+  )
 }
 
 // A read-only "check off as you go" list for the block currently running —
@@ -115,13 +194,17 @@ export default function TimerRun({ engine, programme, onCollapse, onStop }) {
   const [manualSplit, setManualSplit] = useState(false)
   const [muted, setMuted] = useState(() => getVolume() === 0)
   const [checked, setChecked] = useState(() => new Set())
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const block = programme.blocks[engine.blockIndex]
   const activity = block?.activities[engine.activityIndex]
   const total = currentPhaseDuration(engine, programme)
   const elapsedPct = total > 0 ? Math.min(100, ((total - engine.timeLeft) / total) * 100) : 0
   const color = phaseColor(engine.phase)
-  const next = engine.status !== 'complete' && engine.status !== 'idle' ? nextActivityPreview(engine, programme) : null
+  const { next, then } = engine.status !== 'complete' && engine.status !== 'idle'
+    ? nextThenPreview(engine, programme)
+    : { next: null, then: null }
   const nextColor = next ? phaseColor(next.type) : color
+  const thenColor = then ? phaseColor(then.type) : color
   // The square header icon lets the user force the split/checklist view
   // open regardless of orientation (refined-UI p.6); a wide/landscape
   // viewport also gets it automatically without needing the toggle.
@@ -185,16 +268,22 @@ export default function TimerRun({ engine, programme, onCollapse, onStop }) {
     </div>
   )
 
-  const nextUp = next && (
-    <div style={{
-      ...s.nextRow,
-      borderColor: saturated ? 'var(--overlay-on-dark-6)' : nextColor,
-      background: saturated ? 'var(--overlay-on-dark-2)' : 'var(--color-timer-paper-surface)',
-    }}>
-      <span style={{ ...s.nextLabel, color: saturated ? '#fff' : nextColor }}>NEXT</span>
-      <span style={{ color: fg }}>{next.name}{next.seconds ? ` · ${next.seconds}s` : ''}</span>
-    </div>
-  )
+  function previewTile(label, tileColor, tile) {
+    if (!tile) return null
+    return (
+      <div style={{
+        ...s.nextRow,
+        borderColor: saturated ? 'var(--overlay-on-dark-6)' : tileColor,
+        background: saturated ? 'var(--overlay-on-dark-2)' : 'var(--color-timer-paper-surface)',
+      }}>
+        <span style={{ ...s.nextLabel, color: saturated ? '#fff' : tileColor }}>{label}</span>
+        <span style={{ color: fg }}>{tile.name}{tile.seconds ? ` · ${tile.seconds}s` : ''}</span>
+      </div>
+    )
+  }
+
+  const totalUnits = block ? block.activities.length * block.repeat : 0
+  const doneUnits = block ? engine.roundIndex * block.activities.length + engine.activityIndex : 0
 
   return (
     <div style={{ ...s.page, background: pageBg, color: fg, transition: 'background 0.3s, color 0.3s' }}>
@@ -202,19 +291,28 @@ export default function TimerRun({ engine, programme, onCollapse, onStop }) {
         <button onClick={onCollapse} style={s.iconBtn(saturated)} aria-label="Collapse">
           <IconChevronDown size={18} />
         </button>
-        <span style={s.blockRound}>
-          {block && `BLOCK ${engine.blockIndex + 1} · ROUND ${engine.roundIndex + 1}/${block.repeat}`}
-        </span>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => setSaturated((v) => !v)} style={s.iconBtn(saturated, saturated)} aria-label="Toggle full-colour mode" aria-pressed={saturated}>
-            <IconBolt size={16} />
+        <div style={s.headerCenter}>
+          <span style={s.blockRound}>
+            {block && `BLOCK ${engine.blockIndex + 1} · ROUND ${engine.roundIndex + 1}/${block.repeat}`}
+          </span>
+          {block && totalUnits > 0 && <TickRow total={totalUnits} current={doneUnits + 1} fg={fg} />}
+        </div>
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={() => setSettingsOpen((v) => !v)}
+            style={s.iconBtn(saturated, settingsOpen)}
+            aria-label="Timer settings" aria-pressed={settingsOpen}
+          >
+            <IconSettings size={17} />
           </button>
-          <button onClick={() => setManualSplit((v) => !v)} style={s.iconBtn(saturated, manualSplit)} aria-label="Toggle split view" aria-pressed={split}>
-            <IconSquare size={16} />
-          </button>
-          <button onClick={toggleMute} style={s.iconBtn(saturated)} aria-label={muted ? 'Unmute' : 'Mute'} aria-pressed={muted}>
-            <IconSpeaker size={16} muted={muted} />
-          </button>
+          {settingsOpen && (
+            <SettingsFlyout
+              saturated={saturated} setSaturated={setSaturated}
+              splitMode={manualSplit} setSplitMode={setManualSplit}
+              muted={muted} toggleMute={toggleMute}
+              onClose={() => setSettingsOpen(false)}
+            />
+          )}
         </div>
       </div>
 
@@ -229,7 +327,13 @@ export default function TimerRun({ engine, programme, onCollapse, onStop }) {
             </div>
             <div style={s.splitInfo}>
               {phaseBadge}
-              {nextUp}
+              {next && (
+                <div>
+                  <div style={{ ...s.nextLabel, color: saturated ? '#fff' : nextColor, marginBottom: 2 }}>NEXT UP</div>
+                  <div style={{ ...s.splitNextName, color: fg }}>{next.name}</div>
+                  {next.seconds > 0 && <div style={{ fontSize: 10.5, color: fg, opacity: 0.6 }}>{next.seconds}s</div>}
+                </div>
+              )}
             </div>
           </div>
 
@@ -239,7 +343,6 @@ export default function TimerRun({ engine, programme, onCollapse, onStop }) {
                 <span style={{ color: fg, opacity: 0.7 }}>
                   CURRENT BLOCK &middot; ROUND {engine.roundIndex + 1}/{block.repeat}
                 </span>
-                <span style={{ ...s.editInline, color: fg }}>EDIT INLINE</span>
               </div>
               <CurrentBlockChecklist block={block} engine={engine} checked={checked} onToggle={toggleChecked} fg={fg} saturated={saturated} />
             </>
@@ -273,7 +376,10 @@ export default function TimerRun({ engine, programme, onCollapse, onStop }) {
             </div>
           )}
 
-          {nextUp}
+          <div style={s.previewStack}>
+            {previewTile('NEXT', nextColor, next)}
+            {previewTile('THEN', thenColor, then)}
+          </div>
         </div>
       )}
 
@@ -293,13 +399,20 @@ export default function TimerRun({ engine, programme, onCollapse, onStop }) {
 
 const s = {
   page: { minHeight: '100svh', display: 'flex', flexDirection: 'column', padding: '16px var(--shell-px-mobile) 32px', gap: 16 },
-  header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  header: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 },
+  headerCenter: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, minWidth: 0 },
   iconBtn: (saturated, pressed) => ({
     width: 36, height: 36, borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center',
     background: pressed ? (saturated ? 'var(--overlay-on-dark-5)' : 'var(--color-bg-inverse)') : (saturated ? 'var(--overlay-on-dark-3)' : 'var(--color-timer-paper-surface)'),
     color: pressed && !saturated ? 'var(--color-text-inverse)' : 'inherit',
-    border: 'none', cursor: 'pointer',
+    border: 'none', cursor: 'pointer', flexShrink: 0,
   }),
+  flyout: {
+    position: 'absolute', top: 44, right: 0, width: 200, zIndex: 21,
+    padding: 12, display: 'flex', flexDirection: 'column', gap: 12,
+    background: 'var(--dialog-bg)', border: '1px solid var(--dialog-border)', borderRadius: 'var(--radius-lg)',
+    boxShadow: 'var(--shadow-lg)',
+  },
   blockRound: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, letterSpacing: '0.12em', opacity: 0.85 },
   center: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 18, padding: '24px 0' },
   phaseBadge: {
@@ -322,8 +435,9 @@ const s = {
   statBox: { flex: 1, borderRadius: 'var(--radius-lg)', padding: '10px 4px', textAlign: 'center' },
   statLabel: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 9, letterSpacing: '0.12em', opacity: 0.65 },
   statValue: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-lg)', marginTop: 2 },
+  previewStack: { display: 'flex', flexDirection: 'column', gap: 8, width: '100%', maxWidth: 320 },
   nextRow: {
-    display: 'flex', alignItems: 'center', gap: 10, width: '100%', maxWidth: 320,
+    display: 'flex', alignItems: 'center', gap: 10, width: '100%',
     borderRadius: 'var(--radius-lg)', border: '1px solid', padding: '10px 14px',
     fontFamily: 'var(--font-body)', fontSize: 'var(--text-sm)',
   },
@@ -349,11 +463,11 @@ const s = {
   miniRingCenter: { position: 'absolute' },
   miniTimeText: { fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: 28, fontVariantNumeric: 'tabular-nums' },
   splitInfo: { flex: 1, display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0 },
+  splitNextName: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15, letterSpacing: '0.03em' },
   currentBlockHeader: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10, letterSpacing: '0.1em',
   },
-  editInline: { opacity: 0.6, cursor: 'default' },
   checklistCard: { borderRadius: 'var(--radius-lg)', padding: 'var(--space-4)', flex: 1, overflowY: 'auto' },
   checklistHeader: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 'var(--text-sm)', textTransform: 'uppercase', marginBottom: 10 },
   checklistTable: { width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-sm)' },
