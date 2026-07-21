@@ -208,7 +208,7 @@ window.CLAUDE_PM_DATA = {
       "id": "WI-0008",
       "title": "Bug: History session rows aren't clickable — can't open any activity",
       "type": "bug",
-      "status": "in_progress",
+      "status": "done",
       "priority": "high",
       "owner": "unassigned",
       "summary": "Session rows in the Recent Sessions list are plain divs with no onClick. programme_id also isn't selected by listAllSessions(), so there's nothing to navigate to even if a handler existed.",
@@ -220,7 +220,11 @@ window.CLAUDE_PM_DATA = {
         "src/components/History.jsx",
         "src/lib/sessionLogsApi.js"
       ],
-      "evidence": [],
+      "evidence": [
+        "Added programme_id to listAllSessions()'s select — it was previously omitted entirely",
+        "Session rows are now real <button> elements; a row with a programme_id navigates to { screen: 'workout', programmeId }, one without (programme was deleted) shows a toast explaining why instead of silently no-oping",
+        "npm run lint/test pass"
+      ],
       "notes": [],
       "createdAt": "2026-07-21",
       "updatedAt": "2026-07-21"

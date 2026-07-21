@@ -25,7 +25,7 @@ export async function listSessionCountsSince(sinceDate) {
 export async function listAllSessions() {
   const { data, error } = await supabase
     .from('session_logs')
-    .select('id, programme_name, block_count, started_at, ended_at, status')
+    .select('id, programme_id, programme_name, block_count, started_at, ended_at, status')
     .order('started_at', { ascending: false })
 
   if (error) throw error
