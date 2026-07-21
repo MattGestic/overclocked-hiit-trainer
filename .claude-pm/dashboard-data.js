@@ -187,7 +187,7 @@ window.CLAUDE_PM_DATA = {
       "id": "WI-0007",
       "title": "Bug: Library week-summary date selection doesn't filter the programme list",
       "type": "bug",
-      "status": "in_progress",
+      "status": "done",
       "priority": "high",
       "owner": "unassigned",
       "summary": "The WeekCalendar day cells on Library have no click handler at all — selecting a day does nothing. Should filter the Programmes list to what was actually run that day, using real session_logs data.",
@@ -199,7 +199,12 @@ window.CLAUDE_PM_DATA = {
         "src/components/Library.jsx",
         "src/lib/sessionLogsApi.js"
       ],
-      "evidence": [],
+      "evidence": [
+        "Replaced listSessionCountsSince (counts only, insufficient) with listSessionsSince (raw started_at/programme_id rows), removing the now-redundant counts-only function",
+        "Day cells are real buttons; selecting one filters the Programmes list to programme_id's logged that day via a day->programme-ids map derived client-side from the same fetch that already feeds the day dots",
+        "Selecting the same day again, or the new clear chip next to the Programmes heading, resets to the full list; an empty state explains when nothing was run on the selected day",
+        "npm run lint/test/build all pass"
+      ],
       "notes": [],
       "createdAt": "2026-07-21",
       "updatedAt": "2026-07-21"
