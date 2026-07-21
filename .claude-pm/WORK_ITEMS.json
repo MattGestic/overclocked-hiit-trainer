@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-07-21",
+  "project": {
+    "name": "overclocked-hiit-trainer",
+    "repository": "MattGestic/overclocked-hiit-trainer",
+    "authoritativeSources": [
+      "docs/requirements.md",
+      "docs/architecture.md",
+      "docs/test-plan.md",
+      "docs/deployment.md",
+      "docs/decisions/0001-monorepo-for-shared-ui.md",
+      "docs/decisions/0002-vendor-shared-ui-not-monorepo.md",
+      "supabase/schema.sql",
+      "CONTRIBUTING.md",
+      "README.md"
+    ]
+  },
+  "items": [
+    {
+      "id": "WI-0001",
+      "title": "Reconcile the starter framework with the intended repository",
+      "type": "chore",
+      "status": "done",
+      "priority": "high",
+      "owner": "unassigned",
+      "summary": "Inspect the intended repository and adapt only repository-specific paths, commands, and factual statements.",
+      "acceptanceCriteria": [
+        "Authoritative repository documents are identified and linked",
+        "Existing package scripts and framework scripts are merged without loss",
+        "No application runtime behavior is changed",
+        "Framework and available application checks are run",
+        "All reconciliation changes and unresolved conflicts are reported"
+      ],
+      "dependencies": [],
+      "sourceRefs": ["README.md", "package.json", "docs/requirements.md", "docs/architecture.md"],
+      "evidence": [
+        "Identified MattGestic/overclocked-hiit-trainer as the target repository (bundle name and CLAUDE.md content match; the other in-scope repo, MyActivities, has no package.json or comparable structure)",
+        "Merged pm:validate and pm:dashboard into the existing package.json scripts block without touching dependencies or metadata",
+        "npm run pm:validate and npm run pm:dashboard both passed",
+        "npm run lint, npm test, and npm run build all passed unchanged after adding the framework",
+        "git diff reviewed: only .claude-pm/**, CLAUDE.md, and the package.json scripts block changed"
+      ],
+      "notes": [],
+      "createdAt": "2026-07-20",
+      "updatedAt": "2026-07-21"
+    },
+    {
+      "id": "WI-0002",
+      "title": "Populate the verified initial backlog",
+      "type": "planning",
+      "status": "done",
+      "priority": "medium",
+      "owner": "unassigned",
+      "summary": "Create outcome-focused work items from authoritative repository sources after reconciliation.",
+      "acceptanceCriteria": [
+        "Each item is traceable to repository evidence or an explicit user decision",
+        "Dependencies and acceptance criteria are recorded",
+        "Speculation is labeled as an unknown rather than stated as fact"
+      ],
+      "dependencies": ["WI-0001"],
+      "sourceRefs": ["docs/architecture.md"],
+      "evidence": [
+        "Seeded WI-0003..WI-0005 directly from docs/architecture.md's 'Explicitly deferred, flagged for confirmation' list (lines ~160-192); two adjacent items in that same list (cooldown countdown, extended programme metadata) are explicitly declined per docs/requirements.md's out-of-scope list rather than deferred, so they were intentionally not turned into backlog items — see STATUS.md risks"
+      ],
+      "notes": ["This is an initial seed from one documented list, not an exhaustive backlog; further prioritization is a product/user decision, not something inferred here."],
+      "createdAt": "2026-07-20",
+      "updatedAt": "2026-07-21"
+    },
+    {
+      "id": "WI-0003",
+      "title": "Swipe-to-delete / quick-swap on ProgrammeEditor's block list",
+      "type": "feature",
+      "status": "backlog",
+      "priority": "low",
+      "owner": "unassigned",
+      "summary": "A touch-gesture swipe/swap-menu component plus a live exercise-substitution data flow, explicitly deferred from the v2 UI overhaul as functionally new work rather than a reskin. Doesn't apply to ActiveWorkout under the current screen-architecture decision; could land as a ProgrammeEditor block-list feature.",
+      "acceptanceCriteria": ["Unknown — needs product/design confirmation before scoping"],
+      "dependencies": [],
+      "sourceRefs": ["docs/architecture.md"],
+      "evidence": [],
+      "notes": ["Explicitly deferred, flagged for confirmation, not yet committed to."],
+      "createdAt": "2026-07-21",
+      "updatedAt": "2026-07-21"
+    },
+    {
+      "id": "WI-0004",
+      "title": "Inline mid-run editing and a \"Back\" reverse-timer control",
+      "type": "feature",
+      "status": "backlog",
+      "priority": "low",
+      "owner": "unassigned",
+      "summary": "Editable reps/weight + \"confirm as actuals\" during ACTIVE/RECOVER, and a reverse-timer control. Needs new timerReducer actions/states plus a product decision on whether in-run edits should mutate the shared programme object (which would leak session actuals into future-run defaults).",
+      "acceptanceCriteria": ["Unknown — needs its own design + test pass per docs/architecture.md, not a rubber-stamp"],
+      "dependencies": [],
+      "sourceRefs": ["docs/architecture.md"],
+      "evidence": [],
+      "notes": ["Explicitly deferred, flagged for confirmation, not yet committed to."],
+      "createdAt": "2026-07-21",
+      "updatedAt": "2026-07-21"
+    },
+    {
+      "id": "WI-0005",
+      "title": "Per-block \"inherit programme interval\" override + between-blocks recovery interval",
+      "type": "feature",
+      "status": "backlog",
+      "priority": "low",
+      "owner": "unassigned",
+      "summary": "Needs new blocks/programmes schema columns and new phase-engine behaviour. Same category already flagged as out-of-scope when Quick Select was built.",
+      "acceptanceCriteria": ["Unknown — needs product/design confirmation before scoping"],
+      "dependencies": [],
+      "sourceRefs": ["docs/architecture.md"],
+      "evidence": [],
+      "notes": ["Explicitly deferred, flagged for confirmation, not yet committed to."],
+      "createdAt": "2026-07-21",
+      "updatedAt": "2026-07-21"
+    }
+  ]
+}

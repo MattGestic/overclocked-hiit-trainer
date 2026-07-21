@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Project Dashboard</title>
+<style>
+:root{color-scheme:dark;--bg:#0d1117;--panel:#161b22;--line:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,sans-serif}main{width:min(1180px,calc(100% - 32px));margin:40px auto}header{display:flex;gap:20px;justify-content:space-between;align-items:end;flex-wrap:wrap}h1{margin:0;font-size:clamp(28px,5vw,48px)}.muted{color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:28px 0}.metric,.card{background:var(--panel);border:1px solid var(--line);border-radius:12px}.metric{padding:16px}.metric strong{display:block;font-size:28px}.controls{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}input,select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px 12px}input{flex:1;min-width:220px}.grid{display:grid;gap:12px}.card{padding:18px}.card-top{display:flex;justify-content:space-between;gap:16px}.id{color:var(--accent);font-weight:700}h2{margin:5px 0 8px;font-size:19px}.badges{display:flex;gap:7px;flex-wrap:wrap}.badge{border:1px solid var(--line);border-radius:999px;padding:2px 8px;font-size:12px}details{margin-top:12px}ul{margin-bottom:0}
+</style>
+</head>
+<body><main>
+<header><div><div class="muted">Repository coordination</div><h1 id="project">Project Dashboard</h1></div><div class="muted" id="updated"></div></header>
+<section class="metrics" id="metrics"></section>
+<section class="controls"><input id="search" type="search" placeholder="Search ID, title, summary, owner…"><select id="status"><option value="">All statuses</option></select></section>
+<section class="grid" id="items"></section>
+</main>
+<script src="dashboard-data.js"></script>
+<script>
+const data=window.CLAUDE_PM_DATA;
+const esc=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+document.getElementById('project').textContent=data.project.name;
+document.getElementById('updated').textContent=`Updated ${data.updatedAt}`;
+const search=document.getElementById('search'),status=document.getElementById('status'),metrics=document.getElementById('metrics'),items=document.getElementById('items');
+[...new Set(data.items.map(item=>item.status))].sort().forEach(value=>status.insertAdjacentHTML('beforeend',`<option>${esc(value)}</option>`));
+function render(){
+ const query=search.value.trim().toLowerCase(),selected=status.value;
+ const filtered=data.items.filter(item=>(!selected||item.status===selected)&&(!query||JSON.stringify(item).toLowerCase().includes(query)));
+ const count=value=>data.items.filter(item=>item.status===value).length;
+ metrics.innerHTML=[['Total items',data.items.length],['In progress',count('in_progress')],['Blocked',count('blocked')],['Done',count('done')]].map(([label,value])=>`<div class="metric"><strong>${value}</strong><span class="muted">${label}</span></div>`).join('');
+ items.innerHTML=filtered.map(item=>`<article class="card"><div class="card-top"><div><span class="id">${esc(item.id)}</span><h2>${esc(item.title)}</h2></div><div class="badges"><span class="badge">${esc(item.status)}</span><span class="badge">${esc(item.priority)}</span></div></div><div class="muted">${esc(item.owner)} · ${esc(item.type)}</div><p>${esc(item.summary)}</p><details><summary>Acceptance criteria and evidence</summary><strong>Acceptance criteria</strong><ul>${item.acceptanceCriteria.map(v=>`<li>${esc(v)}</li>`).join('')}</ul><strong>Evidence</strong>${item.evidence.length?`<ul>${item.evidence.map(v=>`<li>${esc(v)}</li>`).join('')}</ul>`:'<p class="muted">None recorded</p>'}</details></article>`).join('')||'<p class="muted">No matching work items.</p>';
+}
+search.addEventListener('input',render);status.addEventListener('change',render);render();
+</script>
+</body></html>
