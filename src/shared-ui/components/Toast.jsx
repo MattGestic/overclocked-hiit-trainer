@@ -14,24 +14,36 @@ export function ToastProvider({ children }) {
   return (
     <ToastContext.Provider value={show}>
       {children}
-      <div style={{ position: 'fixed', top: 'var(--header-h)', left: 0, right: 0, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, pointerEvents: 'none' }}>
+      {/* Sits above the bottom nav, not over header controls — a full-width
+          top banner previously covered Settings/Edit/Start/back buttons on
+          every screen (see WI-0009). */}
+      <div style={{
+        position: 'fixed', bottom: 'calc(var(--bottom-nav-h) + 16px)', left: 0, right: 0,
+        zIndex: 'var(--z-toast)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+        padding: '0 var(--shell-px-mobile)', pointerEvents: 'none',
+      }}>
         {toasts.map(t => (
           <div
             key={t.id}
             style={{
-              maxWidth: 400, width: '90%', padding: '12px 16px', borderRadius: 14,
-              fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, letterSpacing: '0.04em',
-              pointerEvents: 'auto', animation: 'toast-in 0.3s ease',
-              ...(t.type === 'error'
-                ? { background: 'var(--color-error-bg)', border: '1px solid var(--color-error-border)', color: 'var(--color-error-text)' }
-                : { background: 'var(--color-success-bg)', border: '1px solid var(--color-success-border)', color: 'var(--color-success-text)' }),
+              maxWidth: 420, width: '100%', padding: '13px 16px', borderRadius: 'var(--radius-lg)',
+              display: 'flex', alignItems: 'center', gap: 10,
+              background: 'var(--color-bg-inverse)', color: 'var(--color-text-inverse)',
+              border: '1px solid var(--color-border-inverse)', boxShadow: 'var(--shadow-lg)',
+              pointerEvents: 'auto', animation: 'toast-in 0.2s ease',
             }}
           >
-            {t.message}
+            <span style={{
+              width: 6, height: 6, borderRadius: '50%', flexShrink: 0,
+              background: t.type === 'error' ? 'var(--color-error-icon)' : 'var(--color-timer-work)',
+            }} />
+            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, letterSpacing: '0.02em' }}>
+              {t.message}
+            </span>
           </div>
         ))}
       </div>
-      <style>{`@keyframes toast-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+      <style>{`@keyframes toast-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }`}</style>
     </ToastContext.Provider>
   )
 }

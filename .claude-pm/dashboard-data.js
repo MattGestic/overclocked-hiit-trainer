@@ -229,7 +229,7 @@ window.CLAUDE_PM_DATA = {
       "id": "WI-0009",
       "title": "Bug: Toast notifications obstruct buttons/navigation and use an off-palette color scheme",
       "type": "bug",
-      "status": "in_progress",
+      "status": "done",
       "priority": "high",
       "owner": "unassigned",
       "summary": "Toast renders top-anchored, full-width, z-index 9999, directly over each screen's header controls (Settings gear, Edit/Start, back button). Its light pink/green banner colors also read as a different visual system from the rest of the app's ink/cream/green language.",
@@ -241,7 +241,11 @@ window.CLAUDE_PM_DATA = {
       "sourceRefs": [
         "src/shared-ui/components/Toast.jsx"
       ],
-      "evidence": [],
+      "evidence": [
+        "Repositioned to bottom (above the bottom nav) instead of top-anchored full-width; narrower max-width, moderate var(--z-toast) instead of 9999",
+        "Restyled to the ink-card treatment already used elsewhere (var(--color-bg-inverse)/--color-text-inverse/--color-border-inverse), with a small status dot (--color-timer-work success / --color-error-icon error) instead of pink/green banner backgrounds",
+        "Verified visually with a Playwright screenshot: toast no longer overlaps header EDIT/START buttons, sits cleanly above the tab bar"
+      ],
       "notes": [],
       "createdAt": "2026-07-21",
       "updatedAt": "2026-07-21"
