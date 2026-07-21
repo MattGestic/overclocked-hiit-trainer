@@ -182,9 +182,13 @@ export default function ProgrammeEditor({ programmeId, onSaved, onCancel, autoOp
       </div>
       {errors.introSeconds && <span style={s.error}>{errors.introSeconds}</span>}
 
-      <button onClick={() => setQuickCreateOpen(true)} style={s.quickCreateBtn}>
-        <IconPlus size={12} /> Quick Create
-      </button>
+      {/* emptyBlock() always seeds one blank activity, so "has exercises" means a
+          named one exists — not just a non-empty activities array. */}
+      {!programme.blocks.some((b) => b.activities.some((a) => a.name.trim() !== '')) && (
+        <button onClick={() => setQuickCreateOpen(true)} style={s.quickCreateBtn}>
+          <IconPlus size={12} /> Quick Create
+        </button>
+      )}
 
       <QuickSelectModal
         open={quickCreateOpen}

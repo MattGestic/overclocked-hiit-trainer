@@ -5,6 +5,7 @@ import { useTimerEngine } from '../hooks/useTimerEngine'
 import LiveBar from './LiveBar'
 import TimerRun from './TimerRun'
 import BlockList from './BlockList'
+import ProgrammeParameters from './ProgrammeParameters'
 import AppTabBar from './AppTabBar'
 import { IconChevronDown, IconBack, IconEdit, IconPlay } from './icons'
 
@@ -102,9 +103,9 @@ export default function ActiveWorkout({ programmeId, onBack, onEdit, navigate })
         </button>
       </div>
 
-      {detailsOpen && (
-        <BlockList programme={programme} engine={engine} onStart={engine.status === 'idle' ? handleStart : undefined} />
-      )}
+      {detailsOpen && <ProgrammeParameters programme={programme} />}
+
+      <BlockList programme={programme} engine={engine} onStart={engine.status === 'idle' ? handleStart : undefined} />
 
       <AppTabBar
         active={isRunning ? 'running' : null}
