@@ -1,14 +1,33 @@
 # Contributing
 
-## Branching
+## Branch and deploy model
 
-`main` is protected — no direct pushes. Branch off `main`, PR back into it.
+```
+feature branch  →  user-testing (staging)  →  main (production)
+                   overclockedhittfit.fit      overclockedhittfit.life
+```
 
-Keep feature branches short-lived where possible. If a branch is going to
-carry a large multi-part build, land it as a sequence of small commits
-that each keep `npm run lint`, `npm run test`, and `npm run build` passing
-— a branch that's "done" at every commit is much easier to review and to
-recover from than one that's only valid at the very last commit.
+- **`main`** is production. Every merge triggers a deploy to `overclockedhittfit.life`.
+  No direct pushes — always PR.
+- **`user-testing`** is staging. Merging here deploys to `overclockedhittfit.fit`.
+  Verify there before opening a PR to `main`.
+- **Feature branches** get per-PR Vercel preview URLs automatically.
+
+**The rule:** nothing goes to `.life` without first being verified on `.fit`.
+
+### Normal flow
+
+```bash
+git checkout -b feature/my-change
+# ... work ...
+gh pr create --base user-testing    # 1. lands on staging
+# verify on https://overclockedhittfit.fit
+gh pr create --base main            # 2. promote to production
+```
+
+Keep feature branches short-lived. If carrying a large multi-part build,
+land it as a sequence of small commits that each keep lint/test/build passing
+— a branch that's "done" at every commit is easier to review and recover from.
 
 ## Before opening a PR
 
