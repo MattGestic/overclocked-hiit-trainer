@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { nextIndices } from '../hooks/useTimerEngine'
 import { useLayout } from '../hooks/useLayout'
+import { useOffline } from '../hooks/useOffline'
 import { setVolume, getVolume } from '../lib/audioEngine'
 import { IconChevronDown, IconBolt, IconSquare, IconSpeaker, IconPause, IconPlay, IconSkip, IconRepeat, IconSettings } from './icons'
 
@@ -190,6 +191,7 @@ function CurrentBlockChecklist({ block, engine, checked, onToggle, fg, saturated
 
 export default function TimerRun({ engine, programme, onCollapse, onStop }) {
   const layout = useLayout()
+  const offline = useOffline()
   const [saturated, setSaturated] = useState(false)
   const [manualSplit, setManualSplit] = useState(false)
   const [muted, setMuted] = useState(() => getVolume() === 0)
@@ -287,6 +289,11 @@ export default function TimerRun({ engine, programme, onCollapse, onStop }) {
 
   return (
     <div style={{ ...s.page, background: pageBg, color: fg, transition: 'background 0.3s, color 0.3s' }}>
+      {offline && (
+        <div style={s.offlineBanner} role="status" aria-live="polite">
+          OFFLINE — session protected
+        </div>
+      )}
       <div style={s.header}>
         <button onClick={onCollapse} style={s.iconBtn(saturated)} aria-label="Collapse">
           <IconChevronDown size={18} />
@@ -456,6 +463,13 @@ const s = {
     color: saturated ? '#fff' : 'var(--color-action-danger)',
     border: `1px solid ${saturated ? 'var(--overlay-on-dark-6)' : 'var(--color-action-danger)'}`,
   }),
+  offlineBanner: {
+    margin: '-16px calc(-1 * var(--shell-px-mobile)) 12px',
+    background: 'var(--color-action-danger, #dc2626)', color: '#fff',
+    fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11,
+    letterSpacing: '0.12em', textTransform: 'uppercase', textAlign: 'center',
+    padding: '6px 16px',
+  },
 
   // Split-view specific (refined-UI p.6)
   splitTopRow: { display: 'flex', alignItems: 'center', gap: 16 },
