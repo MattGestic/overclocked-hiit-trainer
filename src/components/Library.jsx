@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useToast } from '../shared-ui'
 import { timeAgo } from '../shared-ui/utils/format'
 import { listProgrammes, deleteProgramme } from '../lib/programmesApi'
-import { listSessionCountsSince } from '../lib/sessionLogsApi'
+import { listSessionsSince } from '../lib/sessionLogsApi'
 import { useLayout } from '../hooks/useLayout'
 import { IconSettings, IconPlus, IconChevron, IconEdit, IconTrash } from './icons'
 import AppTabBar from './AppTabBar'
@@ -29,8 +29,8 @@ function startOfWeek(date) {
 // Pure fetch, no state access — safe to call from an effect body directly;
 // every setState happens in the .then()/.catch() callback at the call site.
 function fetchLibraryData() {
-  return Promise.all([listProgrammes(), listSessionCountsSince(startOfWeek(new Date()))])
-    .then(([list, counts]) => ({ list, counts }))
+  return Promise.all([listProgrammes(), listSessionsSince(startOfWeek(new Date()))])
+    .then(([list, sessions]) => ({ list, sessions }))
 }
 
 const WEEKDAY_LABELS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
@@ -42,7 +42,7 @@ const MONTH_LABELS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'S
 // = done, past-without = missed, future = planned, today-without-session-
 // yet reads as neutral (the day isn't over). No scheduling feature exists
 // to back a real "planned" concept beyond "this date hasn't happened yet."
-function WeekCalendar({ dailyReps }) {
+function WeekCalendar({ dailyReps, selectedDate, onSelect }) {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const start = startOfWeek(today)
@@ -76,15 +76,25 @@ function WeekCalendar({ dailyReps }) {
         </div>
       </div>
       <div style={s.calGrid}>
-        {days.map(({ date, isToday, status }) => (
-          <div key={date.toDateString()} style={{ ...s.calDay, ...(isToday ? s.calDayToday : null) }}>
-            <span style={{ ...s.calWeekday, color: [0, 6].includes(date.getDay()) ? 'var(--color-action-danger)' : 'var(--color-text-on-primary)', opacity: [0, 6].includes(date.getDay()) ? 0.85 : 0.55 }}>
-              {WEEKDAY_LABELS[date.getDay()]}
-            </span>
-            <span style={{ ...s.calDate, color: 'var(--color-text-on-primary)' }}>{date.getDate()}</span>
-            <span style={{ ...s.calDot, background: dotColor[status] }} />
-          </div>
-        ))}
+        {days.map(({ date, isToday, status }) => {
+          const key = date.toDateString()
+          const isSelected = key === selectedDate
+          return (
+            <button
+              key={key}
+              onClick={() => onSelect(key)}
+              aria-pressed={isSelected}
+              aria-label={`${WEEKDAY_LABELS[date.getDay()]} ${date.getDate()}, ${status}`}
+              style={{ ...s.calDay, ...(isToday ? s.calDayToday : null), ...(isSelected ? s.calDaySelected : null) }}
+            >
+              <span style={{ ...s.calWeekday, color: [0, 6].includes(date.getDay()) ? 'var(--color-action-danger)' : 'var(--color-text-on-primary)', opacity: [0, 6].includes(date.getDay()) ? 0.85 : 0.55 }}>
+                {WEEKDAY_LABELS[date.getDay()]}
+              </span>
+              <span style={{ ...s.calDate, color: 'var(--color-text-on-primary)' }}>{date.getDate()}</span>
+              <span style={{ ...s.calDot, background: dotColor[status] }} />
+            </button>
+          )
+        })}
       </div>
     </div>
   )
@@ -110,7 +120,8 @@ function todayLine() {
 export default function Library({ onNew, onQuickNew, onEdit, onRun, onSettings, navigate }) {
   const [programmes, setProgrammes] = useState(null) // null = loading
   const [error, setError] = useState(null)
-  const [dailyReps, setDailyReps] = useState({})
+  const [sessions, setSessions] = useState([])
+  const [selectedDate, setSelectedDate] = useState(null) // toDateString() or null
   const [reloadToken, setReloadToken] = useState(0)
   const toast = useToast()
   const layout = useLayout()
@@ -123,13 +134,46 @@ export default function Library({ onNew, onQuickNew, onEdit, onRun, onSettings, 
 
   useEffect(() => {
     fetchLibraryData()
-      .then(({ list, counts }) => {
+      .then(({ list, sessions: rows }) => {
         setProgrammes(list)
-        setDailyReps(counts)
+        setSessions(rows)
         setError(null)
       })
       .catch((err) => setError(err.message))
   }, [reloadToken])
+
+  // Day dots (counts) and the date-filter's day → programme-ids lookup are
+  // both derived from the same raw session rows, so a single fetch backs
+  // both the WeekCalendar display and the "what did I run that day" filter.
+  const dailyReps = useMemo(() => {
+    const counts = {}
+    for (const s of sessions) {
+      const key = new Date(s.started_at).toDateString()
+      counts[key] = (counts[key] || 0) + 1
+    }
+    return counts
+  }, [sessions])
+
+  const dailyProgrammeIds = useMemo(() => {
+    const map = new Map()
+    for (const s of sessions) {
+      if (!s.programme_id) continue
+      const key = new Date(s.started_at).toDateString()
+      if (!map.has(key)) map.set(key, new Set())
+      map.get(key).add(s.programme_id)
+    }
+    return map
+  }, [sessions])
+
+  const visibleProgrammes = useMemo(() => {
+    if (!programmes || !selectedDate) return programmes
+    const ids = dailyProgrammeIds.get(selectedDate)
+    return programmes.filter((p) => ids?.has(p.id))
+  }, [programmes, selectedDate, dailyProgrammeIds])
+
+  function selectDate(key) {
+    setSelectedDate((prev) => (prev === key ? null : key))
+  }
 
   async function handleDelete(id, name) {
     if (!window.confirm(`Delete "${name}"? This can't be undone.`)) return
@@ -156,13 +200,20 @@ export default function Library({ onNew, onQuickNew, onEdit, onRun, onSettings, 
       <div style={s.dateLine}>{todayLine()}</div>
       <h2 style={s.hero}>Start the clock.</h2>
 
-      <WeekCalendar dailyReps={dailyReps} />
+      <WeekCalendar dailyReps={dailyReps} selectedDate={selectedDate} onSelect={selectDate} />
 
-      <div className="flex items-center justify-between" style={{ margin: '28px 0 12px' }}>
+      <div className="flex items-center justify-between" style={{ margin: '28px 0 12px', gap: 8 }}>
         <span style={s.sectionLabel}>Programmes</span>
-        <button onClick={onQuickNew} style={s.newBtn}>
-          <IconPlus size={12} /> New
-        </button>
+        {selectedDate ? (
+          <button onClick={() => setSelectedDate(null)} style={s.clearChip}>
+            {new Date(selectedDate).toLocaleDateString(undefined, { weekday: 'short', day: '2-digit', month: 'short' })}
+            <span style={{ marginLeft: 4 }}>&times;</span>
+          </button>
+        ) : (
+          <button onClick={onQuickNew} style={s.newBtn}>
+            <IconPlus size={12} /> New
+          </button>
+        )}
       </div>
 
       {programmes === null && !error && (
@@ -188,9 +239,15 @@ export default function Library({ onNew, onQuickNew, onEdit, onRun, onSettings, 
         </div>
       )}
 
-      {programmes && programmes.length > 0 && (
+      {programmes && programmes.length > 0 && visibleProgrammes.length === 0 && (
+        <p style={{ color: 'var(--color-text-muted)', textAlign: 'center', padding: '32px 0' }}>
+          Nothing run on {new Date(selectedDate).toLocaleDateString(undefined, { weekday: 'long', day: '2-digit', month: 'short' })}.
+        </p>
+      )}
+
+      {visibleProgrammes && visibleProgrammes.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: `repeat(${libraryGridColumns(layout.bp)}, 1fr)`, gap: 12 }}>
-          {programmes.map((p) => (
+          {visibleProgrammes.map((p) => (
             <div key={p.id} style={s.card}>
               <button onClick={() => onRun(p.id)} className="flex items-center flex-1" style={s.cardMain}>
                 <div style={s.durationBadge}>{p.durationMinutes}</div>
@@ -251,8 +308,12 @@ const s = {
   legendItem: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 8.5, color: 'var(--color-text-on-primary)', opacity: 0.6, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' },
   legendDot: { width: 6, height: 6, borderRadius: '50%', flexShrink: 0 },
   calGrid: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 },
-  calDay: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, padding: '8px 2px 9px', borderRadius: 12 },
+  calDay: {
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, padding: '8px 2px 9px',
+    borderRadius: 12, background: 'none', border: 'none', cursor: 'pointer', width: '100%',
+  },
   calDayToday: { background: 'rgba(255,255,255,0.10)', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.10)' },
+  calDaySelected: { boxShadow: 'inset 0 0 0 2px rgba(255,255,255,0.6)' },
   calWeekday: { fontFamily: 'var(--font-body)', fontWeight: 800, fontSize: 9.5, letterSpacing: '0.08em' },
   calDate: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 21, lineHeight: 1 },
   calDot: { width: 6, height: 6, borderRadius: '50%', marginTop: 1 },
@@ -265,6 +326,11 @@ const s = {
     fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 11,
     letterSpacing: '0.1em', color: 'var(--color-action-primary)',
     background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase',
+  },
+  clearChip: {
+    display: 'inline-flex', alignItems: 'center', fontSize: 10, fontWeight: 700,
+    letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--color-text-secondary)',
+    padding: '3px 8px', borderRadius: 4, background: 'var(--color-action-secondary)', border: 'none', cursor: 'pointer',
   },
   newProgrammeBtn: {
     height: 'var(--btn-h-md)', padding: '0 24px', background: 'var(--color-action-primary)',
