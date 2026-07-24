@@ -1,5 +1,10 @@
 name: CI
-on: [push, pull_request]
+on:
+  push:
+    branches: [main, user-testing, 'feature/**', 'claude/**', 'fix/**', 'chore/**']
+  pull_request:
+    branches: [main, user-testing]
+
 jobs:
   build:
     runs-on: ubuntu-latest
