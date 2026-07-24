@@ -19,13 +19,21 @@
   --color-brand-primary-hover:   #1f2937;
   --color-brand-primary-pressed: #030712;
 
-  --color-brand-lime:            #84cc16;  /* REP•STACK identity green */
-  --color-brand-lime-hover:      #65a30d;
-  --color-brand-lime-pressed:    #4d7c0f;
+  --color-brand-lime:            #5f9e6c;  /* OVER•CLOCK's ACTIVE green, per finalized timer screens (diverges from REP•STACK's lime) */
+  --color-brand-lime-hover:      #4f8a5b;
+  --color-brand-lime-pressed:    #3f6f49;
 
   --color-brand-orange:          #f97316;  /* streak / accent */
   --color-brand-orange-hover:    #ea580c;
   --color-brand-orange-pressed:  #c2410c;
+
+  --color-brand-indigo:          #5457c6;  /* OVER•CLOCK's RECOVER + primary-action blue-violet */
+  --color-brand-indigo-hover:    #4548ac;
+  --color-brand-indigo-pressed:  #383a8f;
+
+  --color-brand-amber:           #b9873a;  /* warm tan info-tile accent (reps/weight during recovery) */
+  --color-brand-amber-hover:     #a17330;
+  --color-brand-amber-pressed:   #87602a;
 
   /* ── Surfaces ────────────────────────────────────────────── */
   --color-bg-app:              #f5f0df;
@@ -53,15 +61,15 @@
   --color-border-default: #d6ccb7;
   --color-border-strong:  #a89f8d;
   --color-border-inverse: rgba(255, 255, 255, 0.18);
-  --color-border-focus:   #84cc16;
+  --color-border-focus:   var(--color-brand-indigo);
   --color-border-error:   #dc2626;
   --color-border-success: #16a34a;
   --color-border-warning: #f59e0b;
 
   /* ── Actions ─────────────────────────────────────────────── */
-  --color-action-primary:         #111827;
-  --color-action-primary-hover:   #1f2937;
-  --color-action-primary-pressed: #030712;
+  --color-action-primary:         var(--color-brand-indigo);
+  --color-action-primary-hover:   var(--color-brand-indigo-hover);
+  --color-action-primary-pressed: var(--color-brand-indigo-pressed);
   --color-action-primary-text:    #ffffff;
 
   --color-action-secondary:         #e7dfcc;
@@ -69,10 +77,10 @@
   --color-action-secondary-pressed: #c8bea8;
   --color-action-secondary-text:    #111827;
 
-  --color-action-positive:         #84cc16;
-  --color-action-positive-hover:   #65a30d;
-  --color-action-positive-pressed: #4d7c0f;
-  --color-action-positive-text:    #111827;
+  --color-action-positive:         var(--color-brand-lime);
+  --color-action-positive-hover:   var(--color-brand-lime-hover);
+  --color-action-positive-pressed: var(--color-brand-lime-pressed);
+  --color-action-positive-text:    #ffffff;
 
   --color-action-danger:         #dc2626;
   --color-action-danger-hover:   #b91c1c;
@@ -118,11 +126,40 @@
   --color-challenge-solo:  #2563eb;
   --color-challenge-group: #7c3aed;
 
-  /* Timer phases — shared between HIIT app and any countdown UIs */
-  --color-timer-work:     #84cc16;
-  --color-timer-rest:     #38bdf8;
+  /* Timer phases — shared between HIIT app and any countdown UIs.
+     Usage: `work`/`rest`/`intro`/`complete` are the phase badge + progress-
+     ring color for ACTIVE/RECOVER/INTRO/DONE; the same token doubles as the
+     full-screen background for a "fully saturated" phase treatment (e.g.
+     RECOVER flooding the screen with --color-timer-rest). `warning` is the
+     shared countdown-tick accent, not a phase of its own. */
+  --color-timer-work:     var(--color-brand-lime);
+  --color-timer-rest:     var(--color-brand-indigo);
+  --color-timer-intro:    var(--color-brand-indigo);
   --color-timer-warning:  #f97316;
-  --color-timer-complete: #22c55e;
+  --color-timer-complete: var(--color-brand-lime);
+
+  /* TimerRun's default "light card" background (refined-UI p.3/4) is fixed
+     cream/navy regardless of the app's light/dark theme setting — only the
+     opt-in "fully saturated" mode floods the screen with the phase color
+     instead. Declared once here (not repeated in [data-theme="dark"]) so it
+     stays constant in both themes. */
+  --color-timer-paper:         #f5f0df;
+  --color-timer-paper-text:    #111827;
+  --color-timer-paper-surface: #ffffff;
+  --color-timer-paper-track:   rgba(17, 24, 39, 0.12);
+  --color-timer-paper-border:  rgba(17, 24, 39, 0.14);
+
+  /* White-on-dark overlay scale — the recurring "translucent white control
+     on a dark or fully-saturated-colour card" pattern (LiveBar's icon
+     buttons, TimerRun's saturated mode). One numbered scale referenced
+     everywhere instead of ad-hoc rgba(255,255,255,N) literals duplicated
+     per component. */
+  --overlay-on-dark-1: rgba(255, 255, 255, 0.08);
+  --overlay-on-dark-2: rgba(255, 255, 255, 0.12);
+  --overlay-on-dark-3: rgba(255, 255, 255, 0.16);
+  --overlay-on-dark-4: rgba(255, 255, 255, 0.20);
+  --overlay-on-dark-5: rgba(255, 255, 255, 0.30);
+  --overlay-on-dark-6: rgba(255, 255, 255, 0.40);
 
   /* ── Charts ──────────────────────────────────────────────── */
   --color-chart-line-primary:   #84cc16;
@@ -148,7 +185,7 @@
   --color-input-bg-disabled:  #f3f0e8;
   --color-input-border:       #d6ccb7;
   --color-input-border-hover: #a89f8d;
-  --color-input-border-focus: #84cc16;
+  --color-input-border-focus: var(--color-brand-indigo);
   --color-input-text:         #111827;
   --color-input-placeholder:  #9ca3af;
   --color-input-label:        #374151;
@@ -158,7 +195,16 @@
   /* ── Typography ──────────────────────────────────────────── */
   --font-display: "Oswald", "Arial Narrow", "Helvetica Neue", sans-serif;
   --font-body:    "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono:    "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-mono:    "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+  /* The four selectable display-font options (Settings → Display Font).
+     Named individually so the Settings picker can preview each one without
+     switching [data-font] first, then reference the same values --font-
+     display resolves to below. */
+  --font-display-oswald:  "Oswald", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-display-barlow:  "Barlow Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-display-bebas:   "Bebas Neue", "Arial Narrow", "Helvetica Neue", sans-serif;
+  --font-display-anton:   "Anton", "Arial Narrow", "Helvetica Neue", sans-serif;
 
   --text-xs:   0.75rem;    /* 12px */
   --text-sm:   0.875rem;   /* 14px */
@@ -226,7 +272,7 @@
   --shadow-md:   0 6px 16px rgba(17, 24, 39, 0.12);
   --shadow-lg:   0 12px 32px rgba(17, 24, 39, 0.16);
   --shadow-xl:   0 20px 48px rgba(17, 24, 39, 0.22);
-  --shadow-focus: 0 0 0 3px rgba(132, 204, 22, 0.35);
+  --shadow-focus: 0 0 0 3px rgba(84, 87, 198, 0.35);
 
   /* Semantic shadow aliases */
   --shadow-card:       var(--shadow-sm);
@@ -303,7 +349,7 @@
   --opacity-overlay:  0.56;
 
   /* ── Focus ring ──────────────────────────────────────────── */
-  --focus-ring-color:  rgba(132, 204, 22, 0.45);
+  --focus-ring-color:  rgba(84, 87, 198, 0.45);
   --focus-ring-width:  3px;
   --focus-ring-offset: 2px;
 
@@ -340,6 +386,84 @@
 
 
 /* ==========================================================================
+   DENSITY — orthogonal to theme, applied via [data-density] on <html>.
+   Regular (the default, no attribute) uses the base --space-* scale defined
+   above; compact scales it down ~25%, comfy scales it up ~20%, for users
+   who want less/more on screen at once.
+   ========================================================================== */
+
+[data-density="compact"] {
+  --space-1:  0.2rem;
+  --space-2:  0.4rem;
+  --space-3:  0.5rem;
+  --space-4:  0.75rem;
+  --space-5:  0.9rem;
+  --space-6:  1.1rem;
+  --space-8:  1.5rem;
+  --space-10: 1.9rem;
+  --space-12: 2.25rem;
+  --space-16: 3rem;
+  --space-20: 3.75rem;
+  --space-24: 4.5rem;
+}
+
+[data-density="comfy"] {
+  --space-1:  0.3rem;
+  --space-2:  0.6rem;
+  --space-3:  0.9rem;
+  --space-4:  1.2rem;
+  --space-5:  1.5rem;
+  --space-6:  1.8rem;
+  --space-8:  2.4rem;
+  --space-10: 3rem;
+  --space-12: 3.6rem;
+  --space-16: 4.8rem;
+  --space-20: 6rem;
+  --space-24: 7.2rem;
+}
+
+
+/* ==========================================================================
+   DISPLAY FONT — Settings → Display Font, applied via [data-font] on <html>.
+   No attribute (or [data-font="oswald"]) keeps the default set on
+   --font-display above; the other three swap it for the whole app.
+   ========================================================================== */
+
+[data-font="barlow"]  { --font-display: var(--font-display-barlow); }
+[data-font="bebas"]   { --font-display: var(--font-display-bebas); }
+[data-font="anton"]   { --font-display: var(--font-display-anton); }
+
+
+/* ==========================================================================
+   COLOUR PALETTE — Settings → Colour Palette, applied via [data-palette] on
+   <html>, only meaningful alongside the light theme (dark theme is a
+   separate axis and unaffected). "Paper" is the light theme's existing
+   default values above, so it needs no override block of its own — only
+   Cream (warmer/lighter) and Steel (cooler grey) redefine surfaces/borders.
+   ========================================================================== */
+
+[data-theme="light"][data-palette="cream"] {
+  --color-bg-app:              #faf3e3;
+  --color-bg-app-subtle:       #fdf8ee;
+  --color-bg-surface:          #fffdf7;
+  --color-bg-surface-subtle:   #fdf6e9;
+  --color-bg-surface-elevated: #fffdf7;
+  --color-border-subtle:       #ede2c8;
+  --color-border-default:      #e0d1ac;
+}
+
+[data-theme="light"][data-palette="steel"] {
+  --color-bg-app:              #eef1f4;
+  --color-bg-app-subtle:       #f5f7f9;
+  --color-bg-surface:          #ffffff;
+  --color-bg-surface-subtle:   #f7f9fa;
+  --color-bg-surface-elevated: #ffffff;
+  --color-border-subtle:       #dde3e8;
+  --color-border-default:      #c9d2da;
+}
+
+
+/* ==========================================================================
    DARK THEME
    Used by default in REP•STACK and OVERCLOCK apps
    ========================================================================== */
@@ -351,13 +475,21 @@
   --color-brand-primary-hover:   #e5e7eb;
   --color-brand-primary-pressed: #d1d5db;
 
-  --color-brand-lime:            #a3e635;
-  --color-brand-lime-hover:      #84cc16;
-  --color-brand-lime-pressed:    #65a30d;
+  --color-brand-lime:            #7bc98a;
+  --color-brand-lime-hover:      #5f9e6c;
+  --color-brand-lime-pressed:    #4f8a5b;
 
   --color-brand-orange:          #fb923c;
   --color-brand-orange-hover:    #f97316;
   --color-brand-orange-pressed:  #ea580c;
+
+  --color-brand-indigo:          #7679e0;
+  --color-brand-indigo-hover:    #5457c6;
+  --color-brand-indigo-pressed:  #4548ac;
+
+  --color-brand-amber:           #d3a35f;
+  --color-brand-amber-hover:     #b9873a;
+  --color-brand-amber-pressed:   #a17330;
 
   /* ── Surfaces ────────────────────────────────────────────── */
   --color-bg-app:              #060b14;   /* REP•STACK deepest bg */
@@ -385,25 +517,25 @@
   --color-border-default: rgba(255, 255, 255, 0.14);
   --color-border-strong:  rgba(255, 255, 255, 0.24);
   --color-border-inverse: rgba(17, 24, 39, 0.16);
-  --color-border-focus:   #a3e635;
+  --color-border-focus:   var(--color-brand-indigo);
   --color-border-error:   #f87171;
   --color-border-success: #4ade80;
   --color-border-warning: #fbbf24;
 
   /* ── Actions ─────────────────────────────────────────────── */
-  --color-action-primary:         #a3e635;
-  --color-action-primary-hover:   #84cc16;
-  --color-action-primary-pressed: #65a30d;
-  --color-action-primary-text:    #111827;
+  --color-action-primary:         var(--color-brand-indigo);
+  --color-action-primary-hover:   var(--color-brand-indigo-hover);
+  --color-action-primary-pressed: var(--color-brand-indigo-pressed);
+  --color-action-primary-text:    #ffffff;
 
   --color-action-secondary:         #1f2937;
   --color-action-secondary-hover:   #273449;
   --color-action-secondary-pressed: #334155;
   --color-action-secondary-text:    #f9fafb;
 
-  --color-action-positive:         #a3e635;
-  --color-action-positive-hover:   #84cc16;
-  --color-action-positive-pressed: #65a30d;
+  --color-action-positive:         var(--color-brand-lime);
+  --color-action-positive-hover:   var(--color-brand-lime-hover);
+  --color-action-positive-pressed: var(--color-brand-lime-pressed);
   --color-action-positive-text:    #111827;
 
   --color-action-danger:         #f87171;
@@ -450,10 +582,11 @@
   --color-challenge-solo:  #60a5fa;
   --color-challenge-group: #a78bfa;
 
-  --color-timer-work:     #a3e635;
-  --color-timer-rest:     #38bdf8;
+  --color-timer-work:     var(--color-brand-lime);
+  --color-timer-rest:     var(--color-brand-indigo);
+  --color-timer-intro:    var(--color-brand-indigo);
   --color-timer-warning:  #fb923c;
-  --color-timer-complete: #4ade80;
+  --color-timer-complete: var(--color-brand-lime);
 
   /* ── Charts ──────────────────────────────────────────────── */
   --color-chart-line-primary:   #a3e635;
@@ -479,7 +612,7 @@
   --color-input-bg-disabled:  #111827;
   --color-input-border:       rgba(255, 255, 255, 0.12);
   --color-input-border-hover: rgba(255, 255, 255, 0.22);
-  --color-input-border-focus: #a3e635;
+  --color-input-border-focus: var(--color-brand-indigo);
   --color-input-text:         #f9fafb;
   --color-input-placeholder:  #6b7280;
   --color-input-label:        #d1d5db;
@@ -492,14 +625,14 @@
   --shadow-md:   0 8px 20px rgba(0, 0, 0, 0.36);
   --shadow-lg:   0 16px 36px rgba(0, 0, 0, 0.42);
   --shadow-xl:   0 24px 56px rgba(0, 0, 0, 0.52);
-  --shadow-focus: 0 0 0 3px rgba(163, 230, 53, 0.42);
+  --shadow-focus: 0 0 0 3px rgba(118, 121, 224, 0.42);
 
   --shadow-card:       var(--shadow-sm);
   --shadow-card-hover: var(--shadow-md);
   --shadow-dialog:     var(--shadow-xl);
 
   /* ── Focus ring ──────────────────────────────────────────── */
-  --focus-ring-color: rgba(163, 230, 53, 0.45);
+  --focus-ring-color: rgba(118, 121, 224, 0.45);
 
   /* ── Component overrides ─────────────────────────────────── */
   --card-bg:       var(--color-bg-surface);

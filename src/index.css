@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700;900&family=Barlow+Condensed:wght@600;700&family=Bebas+Neue&family=Anton&display=swap');
 @import "./shared-ui/theme/tokens.css";
 @import "tailwindcss";
 
@@ -12,5 +12,8 @@ body {
 }
 
 #root {
-  min-height: 100svh;
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
