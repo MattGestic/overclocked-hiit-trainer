@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-07-21",
+  "updatedAt": "2026-07-24",
   "project": {
     "name": "overclocked-hiit-trainer",
     "repository": "MattGestic/overclocked-hiit-trainer",
@@ -260,6 +260,74 @@
       "notes": [],
       "createdAt": "2026-07-21",
       "updatedAt": "2026-07-21"
+    },
+    {
+      "id": "WI-0014",
+      "title": "Add a block-progress visual indicator to the workout/timer screens",
+      "type": "feature",
+      "status": "backlog",
+      "priority": "medium",
+      "owner": "unassigned",
+      "summary": "A visual component (e.g. a segmented bar or dot row) showing progress through a programme's blocks — how many blocks total and which one is current — on the Home/Library and/or TimerRun screens. Today TimerRun only renders this as a text label, not a visual indicator.",
+      "acceptanceCriteria": [
+        "Check the v3 design reference and the current TimerRun/Library screens for any existing block-progress visual component before designing a new one, rather than assuming none exists",
+        "A visual indicator shows which block of the total blocks the user is on and updates live during a run",
+        "Screen placement (Library/home, TimerRun, or both) confirmed before build — not assumed"
+      ],
+      "dependencies": [],
+      "sourceRefs": ["src/components/TimerRun.jsx"],
+      "evidence": [
+        "TimerRun.jsx renders only a text label (`BLOCK ${blockIndex + 1} · ROUND ${roundIndex + 1}/${block.repeat}`) — no dot/segmented visual block-progress component found in TimerRun.jsx or ActiveWorkout.jsx",
+        "docs/architecture.md's 'Adopted this pass' list for TimerRun mentions a 'tick-row round-progress indicator' for rounds within the current block, but not a cross-block progress indicator — a different concept"
+      ],
+      "notes": ["User request 2026-07-24. Related to WI-0013's TimerRun v3 pass and WI-0011's ActiveWorkout pass — may land alongside either, not a hard dependency on either."],
+      "createdAt": "2026-07-24",
+      "updatedAt": "2026-07-24"
+    },
+    {
+      "id": "WI-0015",
+      "title": "Programme-level \"rounds per block\" quick-fill control",
+      "type": "feature",
+      "status": "backlog",
+      "priority": "medium",
+      "owner": "unassigned",
+      "summary": "A control in the programme header that lets the user set a rounds value once and push it into every block's Repeat field, instead of editing each block's Repeat individually.",
+      "acceptanceCriteria": [
+        "ProgrammeEditor gains a programme-level \"rounds per block\" input/action that writes the same value into every existing block's repeat field",
+        "Applying it is a one-off bulk-set, not a locked/linked value — per-block Repeat stays independently editable afterward",
+        "Blocks added after the bulk-set aren't silently overwritten by a stale value"
+      ],
+      "dependencies": [],
+      "sourceRefs": ["src/components/ProgrammeEditor.jsx"],
+      "evidence": [
+        "ProgrammeEditor.jsx sets `repeat` per block only — each block has its own \"Repeat\" number input; no programme-level bulk-set control exists today"
+      ],
+      "notes": ["User request 2026-07-24. Distinct from WI-0005 (per-block active/recover interval inherit+override) — this is about round count, not phase timing."],
+      "createdAt": "2026-07-24",
+      "updatedAt": "2026-07-24"
+    },
+    {
+      "id": "WI-0016",
+      "title": "Extend programme type to include Weights and Not Timed",
+      "type": "feature",
+      "status": "backlog",
+      "priority": "medium",
+      "owner": "unassigned",
+      "summary": "Add \"Weights\" and \"Not Timed\" as selectable programme types alongside the existing HIIT/TABATA/CIRCUIT/AMRAP/EMOM. \"Not Timed\" implies a programme that doesn't run through the timer engine's countdown flow at all, which is a new run mode, not just a new label.",
+      "acceptanceCriteria": [
+        "Needs product/design confirmation of what a \"Not Timed\" run actually is (skips TimerRun/useTimerEngine entirely vs. reuses it with countdowns hidden) before implementation is scoped",
+        "supabase/schema.sql's `programmes.type` CHECK constraint and ProgrammeEditor's type selector are updated together, not just one",
+        "Existing HIIT/TABATA/CIRCUIT/AMRAP/EMOM programmes and the timer engine are unaffected"
+      ],
+      "dependencies": [],
+      "sourceRefs": ["supabase/schema.sql", "docs/requirements.md", "src/components/ProgrammeEditor.jsx"],
+      "evidence": [
+        "supabase/schema.sql: `programmes.type` CHECK constraint currently only allows ('HIIT','TABATA','CIRCUIT','AMRAP','EMOM')",
+        "docs/requirements.md already documents a type selector in ProgrammeEditor for that same five-value list; \"Weights\" and \"Not Timed\" appear in neither the type list nor the out-of-scope list"
+      ],
+      "notes": ["User request 2026-07-24. \"Not Timed\" has real timerReducer/phase-engine implications per docs/architecture.md and should get its own design pass, not be folded in as a simple enum addition."],
+      "createdAt": "2026-07-24",
+      "updatedAt": "2026-07-24"
     }
   ]
 }
