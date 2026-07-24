@@ -1,22 +1,18 @@
 import { supabase } from './supabaseClient'
 
-// Session counts per day, keyed the same way DayDots (shared-ui) expects:
-// `date.toDateString()`. Reused by both the Library weekly strip and,
-// later, the History screen.
-export async function listSessionCountsSince(sinceDate) {
+// Minimal per-session rows since a given date — powers both the Library
+// weekly strip's day dots and its date-select filter (which programme(s)
+// ran on the selected day). Deliberately just started_at/programme_id so
+// callers derive whatever shape (counts, day->programme map) they need
+// client-side instead of each needing its own bespoke aggregation query.
+export async function listSessionsSince(sinceDate) {
   const { data, error } = await supabase
     .from('session_logs')
-    .select('started_at')
+    .select('started_at, programme_id')
     .gte('started_at', sinceDate.toISOString())
 
   if (error) throw error
-
-  const counts = {}
-  for (const row of data) {
-    const key = new Date(row.started_at).toDateString()
-    counts[key] = (counts[key] || 0) + 1
-  }
-  return counts
+  return data
 }
 
 // Full session rows, newest first — used by History for stats, the
@@ -25,7 +21,7 @@ export async function listSessionCountsSince(sinceDate) {
 export async function listAllSessions() {
   const { data, error } = await supabase
     .from('session_logs')
-    .select('id, programme_name, block_count, started_at, ended_at, status')
+    .select('id, programme_id, programme_name, block_count, started_at, ended_at, status')
     .order('started_at', { ascending: false })
 
   if (error) throw error

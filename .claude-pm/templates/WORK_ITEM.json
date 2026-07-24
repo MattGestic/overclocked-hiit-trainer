@@ -1,0 +1,16 @@
+{
+  "id": "WI-0000",
+  "title": "Outcome-oriented title",
+  "type": "feature",
+  "status": "backlog",
+  "priority": "medium",
+  "owner": "unassigned",
+  "summary": "Why this work matters and what outcome it creates.",
+  "acceptanceCriteria": ["Observable condition that proves the outcome"],
+  "dependencies": [],
+  "sourceRefs": [],
+  "evidence": [],
+  "notes": [],
+  "createdAt": "YYYY-MM-DD",
+  "updatedAt": "YYYY-MM-DD"
+}

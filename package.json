@@ -8,7 +8,9 @@
     "build": "vite build",
     "lint": "eslint .",
     "test": "vitest run",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "pm:validate": "node .claude-pm/generate-dashboard.mjs --check",
+    "pm:dashboard": "node .claude-pm/generate-dashboard.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.7",

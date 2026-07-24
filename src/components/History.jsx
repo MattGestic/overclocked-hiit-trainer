@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { listAllSessions } from '../lib/sessionLogsApi'
 import { useLayout } from '../hooks/useLayout'
+import { useToast } from '../shared-ui'
 import { IconChevron } from './icons'
 import AppTabBar from './AppTabBar'
 
@@ -126,6 +127,12 @@ export default function History({ navigate }) {
   const [monthOffset, setMonthOffset] = useState(0)
   const [selectedDate, setSelectedDate] = useState(null) // toDateString() or null
   const layout = useLayout()
+  const toast = useToast()
+
+  function openSession(sess) {
+    if (sess.programme_id) navigate({ screen: 'workout', programmeId: sess.programme_id })
+    else toast?.('That programme was deleted — this session is a record only', 'error')
+  }
 
   useEffect(() => {
     listAllSessions().then(setSessions).catch((err) => setError(err.message))
@@ -258,7 +265,12 @@ export default function History({ navigate }) {
         {listedSessions.slice(0, 15).map((sess) => {
           const d = new Date(sess.started_at)
           return (
-            <div key={sess.id} style={s.sessionRow}>
+            <button
+              key={sess.id}
+              onClick={() => openSession(sess)}
+              style={{ ...s.sessionRow, opacity: sess.programme_id ? 1 : 0.72 }}
+              aria-label={sess.programme_id ? `Open ${sess.programme_name}` : `${sess.programme_name} (programme deleted)`}
+            >
               <div style={s.sessionDateBadge}>
                 <span style={s.sessionDateWeekday}>{WEEKDAY_ABBR[d.getDay()]}</span>
                 <span style={s.sessionDateNum}>{String(d.getDate()).padStart(2, '0')}</span>
@@ -271,7 +283,8 @@ export default function History({ navigate }) {
                   {formatClock(sessionDurationMs(sess))}{sess.block_count != null && ` · ${sess.block_count} block${sess.block_count === 1 ? '' : 's'}`}
                 </div>
               </div>
-            </div>
+              <span style={{ color: 'var(--color-text-muted)', flexShrink: 0 }}><IconChevron size={13} /></span>
+            </button>
           )
         })}
       </div>
@@ -399,8 +412,9 @@ const s = {
     fontFamily: 'var(--font-mono)', fontSize: 10.5, color: 'var(--color-text-muted)',
   },
   sessionRow: {
-    display: 'flex', alignItems: 'center', gap: 12, background: 'var(--card-bg)',
+    display: 'flex', alignItems: 'center', gap: 12, background: 'var(--card-bg)', width: '100%',
     border: '1px solid var(--card-border)', borderRadius: 'var(--radius-md)', padding: '10px 14px',
+    textAlign: 'left', cursor: 'pointer',
   },
   sessionDateBadge: { display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, width: 32 },
   sessionDateWeekday: { fontSize: 9, fontFamily: 'var(--font-display)', fontWeight: 700, color: 'var(--color-text-subtle)', letterSpacing: '0.04em' },
