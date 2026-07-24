@@ -122,6 +122,21 @@ export function timerReducer(state = initialState, action) {
     case 'STOP':
       return { ...initialState }
 
+    // Restores a saved session snapshot. Wall-clock correction (adjusting
+    // timeLeft for elapsed real time) must be applied by the caller before
+    // dispatching — the reducer just applies the snapshot as-is.
+    case 'RESTORE':
+      return {
+        ...state,
+        status: action.paused ? 'paused' : 'running',
+        phase: action.phase,
+        timeLeft: action.timeLeft,
+        blockIndex: action.blockIndex,
+        roundIndex: action.roundIndex,
+        activityIndex: action.activityIndex,
+        pendingCues: [],
+      }
+
     case 'CLEAR_CUES':
       return state.pendingCues.length ? { ...state, pendingCues: [] } : state
 
@@ -184,6 +199,15 @@ export function useTimerEngine(programme) {
     dispatch({ type: 'START', programme })
   }, [programme, audioReliability, wakeLock, togglePause])
 
+  // Restore a saved session snapshot. Caller must pass wall-clock-corrected
+  // timeLeft. Boots audio/wake-lock the same way start() does.
+  const restore = useCallback(async (snapshot) => {
+    wakeLock.acquire()
+    await audioEngine.bootAudioContext()
+    audioReliability.start(programme.name, togglePause)
+    dispatch({ type: 'RESTORE', ...snapshot })
+  }, [programme, audioReliability, wakeLock, togglePause])
+
   const stop = useCallback(() => {
     audioReliability.stop()
     wakeLock.release()
@@ -214,5 +238,5 @@ export function useTimerEngine(programme) {
     return () => document.removeEventListener('visibilitychange', onVisibilityChange)
   }, [wakeLock])
 
-  return { ...state, start, pause, resume, togglePause, stop, skip }
+  return { ...state, start, restore, pause, resume, togglePause, stop, skip }
 }
